@@ -15,24 +15,115 @@ struct Move{
     int fromRow, fromCol, toRow, toCol;
 };
 
+Move validMoveCollection[1000];
+int numOfMove;
+
 void initiateBoard();
 void printBoard();
 Move getMove();
 bool isValidMove(Move move);  
-void play();     
+void playVsHuman();     
 bool isGameOver();  // not start
 void makeMove(Move move); 
 void promote(int row, int col); 
-
+void collectValidMove();    // jumped move is not covered
+void playVsComputer();   //not finished
+void pushValidMove(Move move);
 
 int main(){
 
+    int option;
     initiateBoard();
-    play();
+
+    cout<<"Enter your choice: "<<endl;
+    cout<<"1. Human vs Human"<<endl;
+    cout<<"2. Human vs Computer"<<endl;
+    cin>>option;
+
+    if(option == 1)
+        playVsHuman();
+    else if(option == 2)
+        playVsComputer();
      
 }
 
-void play(){
+void playVsComputer(){
+
+    while(!isGameOver()){
+        printBoard();
+        cout<< (redTurn ? "Your " : "Computer's ") <<"turn:"<<endl;
+        Move move;
+        if(redTurn){
+            do{
+                move = getMove();
+            }while(!isValidMove(move));
+            makeMove(move);
+        }
+        else{
+            int random;
+            collectValidMove();
+            random = (int)(rand()%(numOfMove+1));
+            move =  validMoveCollection[random];
+            makeMove(move);
+        }
+    }
+    printBoard();
+    cout<<"Gameover!!"<<endl;
+}
+
+void collectValidMove(){
+    Move move;
+    numOfMove = -1;
+
+    for(int i=0; i<BOARD_SIZE; i++){
+        for(int j=0; j<BOARD_SIZE; j++){
+            if(checkerBoard[i][j] == EMPTY || checkerBoard[i][j] == RED_PIECE || checkerBoard[i][j] == RED_KING)
+                continue;
+
+            else if(checkerBoard[i][j] == BLUE_PIECE){
+                move.fromRow = i;
+                move.fromCol = j;
+                move.toRow = i+1;
+                move.toCol = j-1;
+                if(isValidMove(move))
+                    pushValidMove(move);
+
+                move.toCol = j+1;
+                if(isValidMove(move))
+                    pushValidMove(move);
+
+            }
+            else{
+                move.fromRow = i;
+                move.fromCol = j;
+                move.toRow = i-1;
+                move.toCol = j-1;
+                if(isValidMove)
+                    pushValidMove(move);
+
+                move.toCol = j+1;
+                if(isValidMove)
+                    pushValidMove(move);
+
+                move.toRow = i+1;
+                if(isValidMove)
+                    pushValidMove(move);
+
+                move.toCol = j-1;
+                if(isValidMove)
+                    pushValidMove(move);
+        
+            }
+        }
+    }
+}
+
+void pushValidMove(Move move){
+    numOfMove++;
+    validMoveCollection[numOfMove] = move;
+}
+
+void playVsHuman(){
 
     while(!isGameOver()){
         printBoard();
