@@ -1,5 +1,6 @@
 #include<iostream>
 #include<math.h>
+#include<stdlib.h>
 #define BOARD_SIZE 8
 #define EMPTY '\0'
 #define RED_PIECE 'r'
@@ -26,7 +27,7 @@ void playVsHuman();
 bool isGameOver();  // not start
 void makeMove(Move move); 
 void promote(int row, int col); 
-void collectValidMove();    // jumped move is not covered
+void collectValidMove();    // jumped move is covered but not checked
 void playVsComputer();   //not finished
 void pushValidMove(Move move);
 
@@ -51,7 +52,7 @@ void playVsComputer(){
 
     while(!isGameOver()){
         printBoard();
-        cout<< (redTurn ? "Your " : "Computer's ") <<"turn:"<<endl;
+        cout<< (redTurn ? "Your (red) " : "Computer's (blue) ") <<"turn:"<<endl;
         Move move;
         if(redTurn){
             do{
@@ -85,12 +86,17 @@ void collectValidMove(){
                 move.fromCol = j;
                 move.toRow = i+1;
                 move.toCol = j-1;
-                if(isValidMove(move))
-                    pushValidMove(move);
-
+                pushValidMove(move);
+    
                 move.toCol = j+1;
-                if(isValidMove(move))
-                    pushValidMove(move);
+                pushValidMove(move);
+
+                move.toRow = i+2;
+                move.toCol = j-2;
+                pushValidMove(move);
+
+                move.toCol = j+2;
+                pushValidMove(move);
 
             }
             else{
@@ -98,20 +104,29 @@ void collectValidMove(){
                 move.fromCol = j;
                 move.toRow = i-1;
                 move.toCol = j-1;
-                if(isValidMove)
-                    pushValidMove(move);
+                pushValidMove(move);
 
                 move.toCol = j+1;
-                if(isValidMove)
-                    pushValidMove(move);
+                pushValidMove(move);
 
                 move.toRow = i+1;
-                if(isValidMove)
-                    pushValidMove(move);
+                pushValidMove(move);
 
                 move.toCol = j-1;
-                if(isValidMove)
-                    pushValidMove(move);
+                pushValidMove(move);
+
+                move.toRow = i-2;
+                move.toCol = j-2;
+                pushValidMove(move);
+
+                move.toCol = j+2;
+                pushValidMove(move);
+
+                move.toRow = i+2;
+                pushValidMove(move);
+
+                move.toCol = j-2;
+                pushValidMove(move);
         
             }
         }
@@ -119,8 +134,10 @@ void collectValidMove(){
 }
 
 void pushValidMove(Move move){
-    numOfMove++;
-    validMoveCollection[numOfMove] = move;
+    if(isValidMove(move)){
+        numOfMove++;
+        validMoveCollection[numOfMove] = move;
+    }
 }
 
 void playVsHuman(){
