@@ -30,7 +30,7 @@ int numOfMove;
 void initiateBoard();
 void printBoard();
 Move getMove();
-bool isValidMove(Move move);
+bool isValidMove(Move move);    //back move also possible(for red only) but it is not allowed for ordinary piece so fix it
 void playVsHuman();
 bool isGameOver();  // not start
 void makeMove(Move move);
@@ -38,7 +38,7 @@ void promote(int row, int col);
 void collectValidMove();    // jumped move is covered but not checked
 void playVsComputer();   //not finished
 void pushValidMove(Move move);
-void printGraphics();
+void printGraphics();       //not showing king conversion so add it
 void drawSquare(int x, int y, SquareColor color);
 void drawCheckerPiece(int x, int y, char color);
 
@@ -51,10 +51,19 @@ int main(){
     initiateBoard();
     printGraphics();
 
-    cout<<"1. Human vs Human"<<endl;
-    cout<<"2. Human vs Computer"<<endl;
-    cout<<"Enter your choice: ";
-    cin>>option;
+
+
+    bool doCycle = true;
+
+    do{
+        cout<<"1. Human vs Human"<<endl;
+        cout<<"2. Human vs Computer"<<endl;
+        cout<<"Enter your choice: ";
+        cin>>option;
+        if(option == 1 || option == 2){
+            doCycle = false;
+        }
+    }while(doCycle);
 
     if(option == 1)
         playVsHuman();
