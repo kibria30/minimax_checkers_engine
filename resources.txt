@@ -1,0 +1,14 @@
+Study on enum:
+https://www.programiz.com/cpp-programming/enumeration
+https://www.javatpoint.com/cpp-enumeration
+https://www.geeksforgeeks.org/enumeration-in-cpp/
+
+
+graphics.h setup:
+https://www.geeksforgeeks.org/include-graphics-h-codeblocks/
+https://www.youtube.com/playlist?list=PLqhLgomZ_RCMEdUG_lOv8ibTJ92sLbIDx
+
+
+Study on graphics.h:
+https://developerinsider.co/graphics-graphics-h-c-programming/
+https://www.youtube.com/playlist?list=PL5UFsTza4wWSNhe0xuO6ELw7ORU-UHNDO
