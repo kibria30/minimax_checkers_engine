@@ -30,7 +30,7 @@ int numOfMove;
 void initiateBoard();
 void printBoard();
 Move getMove();
-bool isValidMove(Move move);    //back move also possible(for red only) but it is not allowed for ordinary piece so fix it
+bool isValidMove(Move move);    //back move also possible(for both) but it is not allowed for ordinary piece so fix it
 void playVsHuman();
 bool isGameOver();  // not start
 void makeMove(Move move);
@@ -208,6 +208,7 @@ void playVsHuman(){
 
     while(!isGameOver()){
         printBoard();
+        printGraphics();
         cout<< (redTurn ? "Red's " : "Blue's ") <<"turn:"<<endl;
         Move move;
         do{

@@ -12,3 +12,10 @@ https://www.youtube.com/playlist?list=PLqhLgomZ_RCMEdUG_lOv8ibTJ92sLbIDx
 Study on graphics.h:
 https://developerinsider.co/graphics-graphics-h-c-programming/
 https://www.youtube.com/playlist?list=PL5UFsTza4wWSNhe0xuO6ELw7ORU-UHNDO
+
+
+Study on Minimax Algorithm:
+https://www.javatpoint.com/mini-max-algorithm-in-ai
+https://www.hackerearth.com/blog/developers/minimax-algorithm-alpha-beta-pruning/
+https://www.youtube.com/watch?v=SLgZhpDsrfc&t=23s&ab_channel=SpanningTree
+https://www.youtube.com/watch?v=Ntu8nNBL28o&t=1s&ab_channel=GateSmashers
