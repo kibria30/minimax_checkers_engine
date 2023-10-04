@@ -27,6 +27,8 @@ struct Move{
 Move validMoveCollection[1000];
 int numOfMove;
 
+int redPieces, bluePieces;
+
 void initiateBoard();
 void printBoard();
 Move getMove();
@@ -41,6 +43,7 @@ void pushValidMove(Move move);
 void printGraphics();       //not showing king conversion so add it
 void drawSquare(int x, int y, SquareColor color);
 void drawCheckerPiece(int x, int y, char color);
+void countPieces();    // kaje ki lagbe adou
 
 int main(){
     int gd = DETECT, gm;
@@ -192,6 +195,21 @@ void collectValidMove(){
                 move.toCol = j-2;
                 pushValidMove(move);
 
+            }
+        }
+    }
+}
+
+void countPieces(){
+    redPieces = 0;
+    bluePieces = 0;
+    for(int i=0; i<BOARD_SIZE; i++){
+        for(int j=0; j<BOARD_SIZE; j++){
+            if(checkerBoard[i][j] == RED_PIECE || checkerBoard[i][j] == RED_KING){
+                redPieces++;
+            }
+            else if(checkerBoard[i][j] == BLUE_PIECE || checkerBoard[i][j] == BLUE_KING){
+                bluePieces++;
             }
         }
     }
