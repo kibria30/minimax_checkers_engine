@@ -19,3 +19,9 @@ https://www.javatpoint.com/mini-max-algorithm-in-ai
 https://www.hackerearth.com/blog/developers/minimax-algorithm-alpha-beta-pruning/
 https://www.youtube.com/watch?v=SLgZhpDsrfc&t=23s&ab_channel=SpanningTree
 https://www.youtube.com/watch?v=Ntu8nNBL28o&t=1s&ab_channel=GateSmashers
+
+
+Study on Minimax Implementation:
+https://www.youtube.com/watch?v=vnd3RfeG3NM&ab_channel=TechWithTim
+https://www.youtube.com/watch?v=LSYj8GZMjWY&ab_channel=TechWithTim
+https://www.youtube.com/watch?v=_kOXGzkbnps&ab_channel=TechWithTim
