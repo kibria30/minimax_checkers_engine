@@ -37,7 +37,7 @@ int redPieces, bluePieces;
 void initiateBoard();
 void printBoard();
 Move getMove();
-bool isValidMove(Move move); // back move also possible(for both) but it is not allowed for ordinary piece so fix it
+bool isValidMove(Move move);
 void playVsHuman();
 void playVsComputer(); // not finished
 void beginnerComputer();
@@ -51,10 +51,12 @@ void pushValidMove(Move move);
 void printGraphics(); // not showing king conversion so add it
 void drawSquare(int x, int y, SquareColor color);
 void drawCheckerPiece(int x, int y, char color);
+void drawKingPiece(int x, int y, char color);
 void countPieces(); // kaje ki lagbe adou
 
 int main()
 {
+    freopen("input.txt", "r", stdin);
     int gd = DETECT, gm;
     initgraph(&gd, &gm, "");
 
@@ -101,6 +103,14 @@ void printGraphics()
             { // Place pieces on odd (i+j) squares
                 drawCheckerPiece(j * SQUARE_SIZE, i * SQUARE_SIZE, BLUE_PIECE);
             }
+            else if(checkerBoard[i][j] == RED_KING)
+            {
+                drawKingPiece(j * SQUARE_SIZE, i * SQUARE_SIZE, RED_KING);
+            }
+            else if(checkerBoard[i][j] == BLUE_KING)
+            {
+                drawKingPiece(j * SQUARE_SIZE, i * SQUARE_SIZE, BLUE_KING);
+            }
         }
     }
 }
@@ -129,6 +139,40 @@ void drawCheckerPiece(int x, int y, char color)
         setfillstyle(SOLID_FILL, BLUE);
     circle(x + SQUARE_SIZE / 2, y + SQUARE_SIZE / 2, SQUARE_SIZE / 2 - 5);
     floodfill(x + SQUARE_SIZE / 2, y + SQUARE_SIZE / 2, WHITE);
+}
+
+void drawKingPiece(int x, int y, char color)
+{
+    setcolor(WHITE);
+    if (color == RED_KING)
+    {
+        setfillstyle(SOLID_FILL, RED);
+    }    
+    else{
+        setfillstyle(SOLID_FILL, BLUE);
+    }
+        
+
+    // Draw the king piece as a red circle with a crown
+    // setcolor(WHITE);
+    // setfillstyle(SOLID_FILL, RED);
+
+    // Draw the main king piece as a circle
+    // circle(x, y, 20);
+    // floodfill(x, y, RED);
+    circle(x + SQUARE_SIZE / 2, y + SQUARE_SIZE / 2, SQUARE_SIZE / 2 - 5);
+    floodfill(x + SQUARE_SIZE / 2, y + SQUARE_SIZE / 2, WHITE);
+    // Draw the crown on top
+    //setfillstyle(SOLID_FILL, YELLOW);
+    //bar(x - 10, y - 25, x + 10, y - 20);
+    //bar(x - 15, y - 35, x + 15, y - 30);
+
+    // Draw the letter 'K' at the center of the king piece
+    setcolor(WHITE);
+    setbkcolor(RED);
+    int textWidth = textwidth("K");
+    int textHeight = textheight("K");
+    outtextxy(x + SQUARE_SIZE / 2 - textWidth / 2, y + SQUARE_SIZE / 2 - textHeight / 2, "K"); // check it please
 }
 
 void playVsComputer()
@@ -365,24 +409,67 @@ bool isValidMove(Move move)
 {
     int fromRow = move.fromRow, fromCol = move.fromCol, toRow = move.toRow, toCol = move.toCol;
     if (toRow < 0 || toRow >= BOARD_SIZE || toCol < 0 || toCol >= BOARD_SIZE)
+    {
         return false;
-
+    }
+        
     char piece = checkerBoard[fromRow][fromCol];
     if (piece == EMPTY || (redTurn && piece != RED_PIECE && piece != RED_KING) || (!redTurn && piece != BLUE_PIECE && piece != BLUE_KING))
+    {
         return false;
+    }
 
     if (checkerBoard[toRow][toCol] != EMPTY)
+    {
         return false;
+    }
 
     int rowDiff = abs(toRow - fromRow), colDiff = abs(toCol - fromCol);
     if (rowDiff == 1 && colDiff == 1)
-        return true;
+    {   
+        // prohibiting back move for ordinary piece
+        if(piece == RED_PIECE && (toRow-fromRow) == -1)
+        {
+            return true;
+        }
+        else if(piece == BLUE_PIECE && (toRow-fromRow) == 1)
+        {
+            return true;
+        }
+        else if(piece == RED_KING || piece == BLUE_KING)
+        {
+            return true;
+        }
+        else return false;
+    }      
     else if (rowDiff == 2 && colDiff == 2)
     {
         int jumpedRow = (toRow + fromRow) / 2, jumpedCol = (toCol + fromCol) / 2;
-        if ((redTurn && (checkerBoard[jumpedRow][jumpedCol] == BLUE_PIECE || checkerBoard[jumpedRow][jumpedCol] == BLUE_KING)) || (!redTurn && (checkerBoard[jumpedRow][jumpedCol] == RED_PIECE || checkerBoard[jumpedRow][jumpedCol] == RED_KING)))
-            return true;
+
+        if(piece == RED_PIECE && (toRow - fromRow) == -2)
+        {
+            if ((redTurn && (checkerBoard[jumpedRow][jumpedCol] == BLUE_PIECE || checkerBoard[jumpedRow][jumpedCol] == BLUE_KING)) || (!redTurn && (checkerBoard[jumpedRow][jumpedCol] == RED_PIECE || checkerBoard[jumpedRow][jumpedCol] == RED_KING)))
+            {
+                return true;
+            }
+        }
+        else if(piece == BLUE_PIECE && (toRow - fromRow) == 2)
+        {
+            if ((redTurn && (checkerBoard[jumpedRow][jumpedCol] == BLUE_PIECE || checkerBoard[jumpedRow][jumpedCol] == BLUE_KING)) || (!redTurn && (checkerBoard[jumpedRow][jumpedCol] == RED_PIECE || checkerBoard[jumpedRow][jumpedCol] == RED_KING)))
+            {
+                return true;
+            }
+        }
+        else if(piece == RED_KING || piece == BLUE_KING)
+        {
+            if ((redTurn && (checkerBoard[jumpedRow][jumpedCol] == BLUE_PIECE || checkerBoard[jumpedRow][jumpedCol] == BLUE_KING)) || (!redTurn && (checkerBoard[jumpedRow][jumpedCol] == RED_PIECE || checkerBoard[jumpedRow][jumpedCol] == RED_KING)))
+            {
+                return true;
+            }
+        }
+        else return false;
     }
+
     return false;
 }
 
