@@ -4,6 +4,7 @@
 #include <graphics.h>
 #include <conio.h>
 #include <time.h>
+#include <vector>
 
 using namespace std;
 
@@ -32,7 +33,9 @@ struct Move
 Move validMoveCollection[1000];
 int numOfMove;
 
-int redPieces, bluePieces;
+int redCount, blueCount;
+vector<char> eattenPieces;
+vector<bool> isPromoted;
 
 void initiateBoard();
 void printBoard();
@@ -43,20 +46,22 @@ void playVsComputer(); // not finished
 void beginnerComputer();
 void intermediateComputer(); // not started
 void expertComputer();       // not started
-bool isGameOver();           // not start
+int minimax(int depth, int height, bool isMax, char checkerBoard[8][8]);
+bool isGameOver(); // not start
 void makeMove(Move move);
+void undoMove(Move latestMove);
 void promote(int row, int col);
-void collectValidMove(); // jumped move is covered but not checked
+void collectValidMove();
 void pushValidMove(Move move);
-void printGraphics(); // not showing king conversion so add it
+void printGraphics();
 void drawSquare(int x, int y, SquareColor color);
 void drawCheckerPiece(int x, int y, char color);
 void drawKingPiece(int x, int y, char color);
-void countPieces(); // kaje ki lagbe adou
+void countPieces();
 
 int main()
 {
-    freopen("input.txt", "r", stdin);
+    // freopen("input.txt", "r", stdin);
     int gd = DETECT, gm;
     initgraph(&gd, &gm, "");
 
@@ -84,6 +89,15 @@ int main()
         playVsComputer();
 }
 
+int minimax(int depth, int height, bool isMax, char checkerBoard[8][8])
+{ // AI is blue. So blue is maxplayer.
+    if (depth == height)
+    {
+        countPieces();
+        return (blueCount - redCount);
+    }
+}
+
 void printGraphics()
 {
 
@@ -103,11 +117,11 @@ void printGraphics()
             { // Place pieces on odd (i+j) squares
                 drawCheckerPiece(j * SQUARE_SIZE, i * SQUARE_SIZE, BLUE_PIECE);
             }
-            else if(checkerBoard[i][j] == RED_KING)
+            else if (checkerBoard[i][j] == RED_KING)
             {
                 drawKingPiece(j * SQUARE_SIZE, i * SQUARE_SIZE, RED_KING);
             }
-            else if(checkerBoard[i][j] == BLUE_KING)
+            else if (checkerBoard[i][j] == BLUE_KING)
             {
                 drawKingPiece(j * SQUARE_SIZE, i * SQUARE_SIZE, BLUE_KING);
             }
@@ -147,27 +161,15 @@ void drawKingPiece(int x, int y, char color)
     if (color == RED_KING)
     {
         setfillstyle(SOLID_FILL, RED);
-    }    
-    else{
+    }
+    else
+    {
         setfillstyle(SOLID_FILL, BLUE);
     }
-        
 
-    // Draw the king piece as a red circle with a crown
-    // setcolor(WHITE);
-    // setfillstyle(SOLID_FILL, RED);
-
-    // Draw the main king piece as a circle
-    // circle(x, y, 20);
-    // floodfill(x, y, RED);
     circle(x + SQUARE_SIZE / 2, y + SQUARE_SIZE / 2, SQUARE_SIZE / 2 - 5);
     floodfill(x + SQUARE_SIZE / 2, y + SQUARE_SIZE / 2, WHITE);
-    // Draw the crown on top
-    //setfillstyle(SOLID_FILL, YELLOW);
-    //bar(x - 10, y - 25, x + 10, y - 20);
-    //bar(x - 15, y - 35, x + 15, y - 30);
 
-    // Draw the letter 'K' at the center of the king piece
     setcolor(WHITE);
     setbkcolor(RED);
     int textWidth = textwidth("K");
@@ -212,7 +214,7 @@ void playVsComputer()
 
 void expertComputer()
 {
-
+    cout << "minimax score: " << minimax(0, 5, true, checkerBoard) << endl;
     ////  not started yet
 }
 
@@ -234,11 +236,33 @@ void beginnerComputer()
         Move move;
         if (redTurn)
         {
-            do
+            while (1)
             {
-                move = getMove();
-            } while (!isValidMove(move));
-            makeMove(move);
+                while (1)
+                {
+                    move = getMove();
+                    if (isValidMove(move))
+                    {
+                        break;
+                    }
+                }
+                makeMove(move);
+                printBoard();
+                printGraphics();
+                int undo;
+                cout << "Want to undo??" << endl;
+                cout << "1. YES" << endl;
+                cout << "0. No" << endl;
+                cin >> undo;
+                if (undo == 1)
+                {
+                    undoMove(move);
+                    printBoard();
+                    printGraphics();
+                }
+                else
+                    break;
+            }
         }
         else
         {
@@ -248,6 +272,8 @@ void beginnerComputer()
             random = (int)(rand() % (numOfMove + 1));
             move = validMoveCollection[random];
             makeMove(move);
+            printBoard();
+            printGraphics();
         }
     }
 
@@ -324,19 +350,19 @@ void collectValidMove()
 void countPieces()
 {
 
-    redPieces = 0;
-    bluePieces = 0;
+    redCount = 0;
+    blueCount = 0;
     for (int i = 0; i < BOARD_SIZE; i++)
     {
         for (int j = 0; j < BOARD_SIZE; j++)
         {
             if (checkerBoard[i][j] == RED_PIECE || checkerBoard[i][j] == RED_KING)
             {
-                redPieces++;
+                redCount++;
             }
             else if (checkerBoard[i][j] == BLUE_PIECE || checkerBoard[i][j] == BLUE_KING)
             {
-                bluePieces++;
+                blueCount++;
             }
         }
     }
@@ -357,18 +383,74 @@ void playVsHuman()
 
     while (!isGameOver())
     {
-        printBoard();
-        printGraphics();
-        cout << (redTurn ? "Red's " : "Blue's ") << "turn:" << endl;
-        Move move;
-        do
+        while (1)
         {
-            move = getMove();
-        } while (!isValidMove(move));
-        makeMove(move);
+            printBoard();
+            printGraphics();
+            cout << (redTurn ? "Red's " : "Blue's ") << "turn:" << endl;
+            Move move;
+            do
+            {
+                move = getMove();
+            } while (!isValidMove(move));
+            makeMove(move);
+            printBoard();
+            printGraphics();
+
+            int undo;
+            cout << "Want to undo??" << endl;
+            cout << "1. YES" << endl;
+            cout << "(0, 2-9). No" << endl;
+            cin >> undo;
+            if (undo == 1)
+            {
+                undoMove(move);
+                printBoard();
+                printGraphics();
+            }
+            else
+                break;
+        }
     }
     printBoard();
     cout << "Gameover!!" << endl;
+}
+
+void undoMove(Move latestMove)
+{
+    int fromRow = latestMove.fromRow, fromCol = latestMove.fromCol, toRow = latestMove.toRow, toCol = latestMove.toCol;
+
+    if(!isPromoted.back())
+    {
+        isPromoted.pop_back();
+        char piece = checkerBoard[toRow][toCol];
+        checkerBoard[toRow][toCol] = EMPTY;
+        checkerBoard[fromRow][fromCol] = piece;
+    }
+    else{
+        isPromoted.pop_back();
+        char piece = checkerBoard[toRow][toCol];
+        checkerBoard[toRow][toCol] = EMPTY;
+        if(piece == RED_KING)
+        {
+            checkerBoard[fromRow][fromCol] = RED_PIECE;
+        }
+        else if(piece == BLUE_KING)
+        {
+            checkerBoard[fromRow][fromCol] = BLUE_PIECE;
+        }
+    }
+    
+    if (abs(toRow - fromRow) == 2)
+    {
+        int jumpedRow = (fromRow + toRow) / 2;
+        int jumpedCol = (fromCol + toCol) / 2;
+        
+        checkerBoard[jumpedRow][jumpedCol] = eattenPieces.back();
+        eattenPieces.pop_back();
+    }
+
+    redTurn = !redTurn; // make move alter player so we need re-alter player
 }
 
 void makeMove(Move move)
@@ -383,11 +465,18 @@ void makeMove(Move move)
     {
         int jumpedRow = (fromRow + toRow) / 2;
         int jumpedCol = (fromCol + toCol) / 2;
+
+        eattenPieces.push_back(checkerBoard[jumpedRow][jumpedCol]);
         checkerBoard[jumpedRow][jumpedCol] = EMPTY;
     }
 
-    if ((redTurn && toRow == 0) || (!redTurn && toRow == BOARD_SIZE - 1))
+    if ((piece == RED_PIECE || piece == BLUE_PIECE) && ((redTurn && toRow == 0) || (!redTurn && toRow == BOARD_SIZE - 1)))
+    {
         promote(toRow, toCol);
+        isPromoted.push_back(true);
+    }
+    else 
+        isPromoted.push_back(false);
 
     redTurn = !redTurn;
 }
@@ -412,7 +501,7 @@ bool isValidMove(Move move)
     {
         return false;
     }
-        
+
     char piece = checkerBoard[fromRow][fromCol];
     if (piece == EMPTY || (redTurn && piece != RED_PIECE && piece != RED_KING) || (!redTurn && piece != BLUE_PIECE && piece != BLUE_KING))
     {
@@ -426,48 +515,50 @@ bool isValidMove(Move move)
 
     int rowDiff = abs(toRow - fromRow), colDiff = abs(toCol - fromCol);
     if (rowDiff == 1 && colDiff == 1)
-    {   
+    {
         // prohibiting back move for ordinary piece
-        if(piece == RED_PIECE && (toRow-fromRow) == -1)
+        if (piece == RED_PIECE && (toRow - fromRow) == -1)
         {
             return true;
         }
-        else if(piece == BLUE_PIECE && (toRow-fromRow) == 1)
+        else if (piece == BLUE_PIECE && (toRow - fromRow) == 1)
         {
             return true;
         }
-        else if(piece == RED_KING || piece == BLUE_KING)
+        else if (piece == RED_KING || piece == BLUE_KING)
         {
             return true;
         }
-        else return false;
-    }      
+        else
+            return false;
+    }
     else if (rowDiff == 2 && colDiff == 2)
     {
         int jumpedRow = (toRow + fromRow) / 2, jumpedCol = (toCol + fromCol) / 2;
 
-        if(piece == RED_PIECE && (toRow - fromRow) == -2)
+        if (piece == RED_PIECE && (toRow - fromRow) == -2)
         {
             if ((redTurn && (checkerBoard[jumpedRow][jumpedCol] == BLUE_PIECE || checkerBoard[jumpedRow][jumpedCol] == BLUE_KING)) || (!redTurn && (checkerBoard[jumpedRow][jumpedCol] == RED_PIECE || checkerBoard[jumpedRow][jumpedCol] == RED_KING)))
             {
                 return true;
             }
         }
-        else if(piece == BLUE_PIECE && (toRow - fromRow) == 2)
+        else if (piece == BLUE_PIECE && (toRow - fromRow) == 2)
         {
             if ((redTurn && (checkerBoard[jumpedRow][jumpedCol] == BLUE_PIECE || checkerBoard[jumpedRow][jumpedCol] == BLUE_KING)) || (!redTurn && (checkerBoard[jumpedRow][jumpedCol] == RED_PIECE || checkerBoard[jumpedRow][jumpedCol] == RED_KING)))
             {
                 return true;
             }
         }
-        else if(piece == RED_KING || piece == BLUE_KING)
+        else if (piece == RED_KING || piece == BLUE_KING)
         {
             if ((redTurn && (checkerBoard[jumpedRow][jumpedCol] == BLUE_PIECE || checkerBoard[jumpedRow][jumpedCol] == BLUE_KING)) || (!redTurn && (checkerBoard[jumpedRow][jumpedCol] == RED_PIECE || checkerBoard[jumpedRow][jumpedCol] == RED_KING)))
             {
                 return true;
             }
         }
-        else return false;
+        else
+            return false;
     }
 
     return false;
