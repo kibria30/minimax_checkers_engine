@@ -30,9 +30,6 @@ struct Move
     int fromRow, fromCol, toRow, toCol;
 };
 
-Move validMoveCollection[1000];
-int numOfMove;
-
 int redCount, blueCount;
 vector<char> eattenPieces;
 vector<bool> isPromoted;
@@ -51,7 +48,8 @@ bool isGameOver(); // not start
 void makeMove(Move move);
 void undoMove(Move latestMove);
 void promote(int row, int col);
-void collectValidMove();
+void collectBlueValidMoves(vector<Move> &blueValidMoves);
+void collectRedValidMoves(vector<Move> &redValidMoves);
 void pushValidMove(Move move);
 void printGraphics();
 void drawSquare(int x, int y, SquareColor color);
@@ -96,6 +94,9 @@ int minimax(int depth, int height, bool isMax, char checkerBoard[8][8])
         countPieces();
         return (blueCount - redCount);
     }
+
+    // collectValidMove();
+    // for (int i = 0; i < validMoveCollection.si)
 }
 
 void printGraphics()
@@ -267,10 +268,11 @@ void beginnerComputer()
         else
         {
             int random;
-            collectValidMove();
+            vector<Move> blueValidMoves;
+            collectBlueValidMoves(blueValidMoves);
             srand(time(0));
-            random = (int)(rand() % (numOfMove + 1));
-            move = validMoveCollection[random];
+            random = (int)(rand() % blueValidMoves.size());
+            move = blueValidMoves[random];
             makeMove(move);
             printBoard();
             printGraphics();
@@ -281,10 +283,9 @@ void beginnerComputer()
     cout << "Gameover!!" << endl;
 }
 
-void collectValidMove()
+void collectBlueValidMoves(vector<Move> &blueValidMoves)
 {
     Move move;
-    numOfMove = -1;
 
     for (int i = 0; i < BOARD_SIZE; i++)
     {
@@ -300,48 +301,185 @@ void collectValidMove()
                 move.fromCol = j;
                 move.toRow = i + 1;
                 move.toCol = j - 1;
-                pushValidMove(move);
+                if (isValidMove(move))
+                {
+                    blueValidMoves.push_back(move);
+                }
 
                 move.toCol = j + 1;
-                pushValidMove(move);
+                if (isValidMove(move))
+                {
+                    blueValidMoves.push_back(move);
+                }
 
                 move.toRow = i + 2;
                 move.toCol = j - 2;
-                pushValidMove(move);
+                if (isValidMove(move))
+                {
+                    blueValidMoves.push_back(move);
+                }
 
                 move.toCol = j + 2;
-                pushValidMove(move);
+                if (isValidMove(move))
+                {
+                    blueValidMoves.push_back(move);
+                }
             }
-            else
+            else if (checkerBoard[i][j] == BLUE_KING)
             {
 
                 move.fromRow = i;
                 move.fromCol = j;
                 move.toRow = i - 1;
                 move.toCol = j - 1;
-                pushValidMove(move);
+                if (isValidMove(move))
+                {
+                    blueValidMoves.push_back(move);
+                }
 
                 move.toCol = j + 1;
-                pushValidMove(move);
+                if (isValidMove(move))
+                {
+                    blueValidMoves.push_back(move);
+                }
 
                 move.toRow = i + 1;
-                pushValidMove(move);
+                if (isValidMove(move))
+                {
+                    blueValidMoves.push_back(move);
+                }
 
                 move.toCol = j - 1;
-                pushValidMove(move);
+                if (isValidMove(move))
+                {
+                    blueValidMoves.push_back(move);
+                }
 
                 move.toRow = i - 2;
                 move.toCol = j - 2;
-                pushValidMove(move);
+                if (isValidMove(move))
+                {
+                    blueValidMoves.push_back(move);
+                }
 
                 move.toCol = j + 2;
-                pushValidMove(move);
+                if (isValidMove(move))
+                {
+                    blueValidMoves.push_back(move);
+                }
 
                 move.toRow = i + 2;
-                pushValidMove(move);
+                if (isValidMove(move))
+                {
+                    blueValidMoves.push_back(move);
+                }
 
                 move.toCol = j - 2;
-                pushValidMove(move);
+                if (isValidMove(move))
+                {
+                    blueValidMoves.push_back(move);
+                }
+            }
+        }
+    }
+}
+
+void collectRedValidMoves(vector<Move> &redValidMoves)
+{
+    Move move;
+
+    for (int i = 0; i < BOARD_SIZE; i++)
+    {
+        for (int j = 0; j < BOARD_SIZE; j++)
+        {
+
+            if (checkerBoard[i][j] == EMPTY || checkerBoard[i][j] == BLUE_PIECE || checkerBoard[i][j] == BLUE_KING)
+                continue;
+
+            else if (checkerBoard[i][j] == RED_PIECE)
+            {
+                move.fromRow = i;
+                move.fromCol = j;
+                move.toRow = i - 1;
+                move.toCol = j - 1;
+                if (isValidMove(move))
+                {
+                    redValidMoves.push_back(move);
+                }
+
+                move.toCol = j + 1;
+                if (isValidMove(move))
+                {
+                    redValidMoves.push_back(move);
+                }
+
+                move.toRow = i - 2;
+                move.toCol = j - 2;
+                if (isValidMove(move))
+                {
+                    redValidMoves.push_back(move);
+                }
+
+                move.toCol = j + 2;
+                if (isValidMove(move))
+                {
+                    redValidMoves.push_back(move);
+                }
+            }
+            else if (checkerBoard[i][j] == RED_KING)
+            {
+
+                move.fromRow = i;
+                move.fromCol = j;
+                move.toRow = i - 1;
+                move.toCol = j - 1;
+                if (isValidMove(move))
+                {
+                    redValidMoves.push_back(move);
+                }
+
+                move.toCol = j + 1;
+                if (isValidMove(move))
+                {
+                    redValidMoves.push_back(move);
+                }
+
+                move.toRow = i + 1;
+                if (isValidMove(move))
+                {
+                    redValidMoves.push_back(move);
+                }
+
+                move.toCol = j - 1;
+                if (isValidMove(move))
+                {
+                    redValidMoves.push_back(move);
+                }
+
+                move.toRow = i - 2;
+                move.toCol = j - 2;
+                if (isValidMove(move))
+                {
+                    redValidMoves.push_back(move);
+                }
+
+                move.toCol = j + 2;
+                if (isValidMove(move))
+                {
+                    redValidMoves.push_back(move);
+                }
+
+                move.toRow = i + 2;
+                if (isValidMove(move))
+                {
+                    redValidMoves.push_back(move);
+                }
+
+                move.toCol = j - 2;
+                if (isValidMove(move))
+                {
+                    redValidMoves.push_back(move);
+                }
             }
         }
     }
@@ -365,16 +503,6 @@ void countPieces()
                 blueCount++;
             }
         }
-    }
-}
-
-void pushValidMove(Move move)
-{
-
-    if (isValidMove(move))
-    {
-        numOfMove++;
-        validMoveCollection[numOfMove] = move;
     }
 }
 
@@ -420,32 +548,33 @@ void undoMove(Move latestMove)
 {
     int fromRow = latestMove.fromRow, fromCol = latestMove.fromCol, toRow = latestMove.toRow, toCol = latestMove.toCol;
 
-    if(!isPromoted.back())
+    if (!isPromoted.back())
     {
         isPromoted.pop_back();
         char piece = checkerBoard[toRow][toCol];
         checkerBoard[toRow][toCol] = EMPTY;
         checkerBoard[fromRow][fromCol] = piece;
     }
-    else{
+    else
+    {
         isPromoted.pop_back();
         char piece = checkerBoard[toRow][toCol];
         checkerBoard[toRow][toCol] = EMPTY;
-        if(piece == RED_KING)
+        if (piece == RED_KING)
         {
             checkerBoard[fromRow][fromCol] = RED_PIECE;
         }
-        else if(piece == BLUE_KING)
+        else if (piece == BLUE_KING)
         {
             checkerBoard[fromRow][fromCol] = BLUE_PIECE;
         }
     }
-    
+
     if (abs(toRow - fromRow) == 2)
     {
         int jumpedRow = (fromRow + toRow) / 2;
         int jumpedCol = (fromCol + toCol) / 2;
-        
+
         checkerBoard[jumpedRow][jumpedCol] = eattenPieces.back();
         eattenPieces.pop_back();
     }
@@ -475,7 +604,7 @@ void makeMove(Move move)
         promote(toRow, toCol);
         isPromoted.push_back(true);
     }
-    else 
+    else
         isPromoted.push_back(false);
 
     redTurn = !redTurn;
