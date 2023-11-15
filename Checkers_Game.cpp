@@ -15,6 +15,7 @@ using namespace std;
 #define BLUE_PIECE 'b'
 #define BLUE_KING 'B'
 #define SQUARE_SIZE 60
+#define INF 10e6
 
 char checkerBoard[BOARD_SIZE][BOARD_SIZE];
 bool redTurn = true;
@@ -30,7 +31,7 @@ struct Move
     int fromRow, fromCol, toRow, toCol;
 };
 
-int redCount, blueCount;
+
 vector<char> eattenPieces;
 vector<bool> isPromoted;
 
@@ -43,11 +44,11 @@ void playVsComputer(); // not finished
 void beginnerComputer();
 void intermediateComputer(); // not started
 void expertComputer();       // not started
-int minimax(int depth, int height, bool isMax, char checkerBoard[8][8]);
+int minimax(int depth, int height, bool isBlue);
 bool isGameOver(); // not start
 void makeMove(Move move);
 void undoMove(Move latestMove);
-void promote(int row, int col);
+void promote(int row, int col);       // blue king hocce na so fix it
 void collectBlueValidMoves(vector<Move> &blueValidMoves);
 void collectRedValidMoves(vector<Move> &redValidMoves);
 void pushValidMove(Move move);
@@ -55,7 +56,7 @@ void printGraphics();
 void drawSquare(int x, int y, SquareColor color);
 void drawCheckerPiece(int x, int y, char color);
 void drawKingPiece(int x, int y, char color);
-void countPieces();
+void countPieces(int &redPieces, int &redKings, int &bluePieces, int &blueKings);
 
 int main()
 {
@@ -87,16 +88,46 @@ int main()
         playVsComputer();
 }
 
-int minimax(int depth, int height, bool isMax, char checkerBoard[8][8])
+int minimax(int depth, int height, bool isBlue)
 { // AI is blue. So blue is maxplayer.
+
+    int redPieces, redKings, bluePieces, blueKings;
+
     if (depth == height)
     {
-        countPieces();
-        return (blueCount - redCount);
+        countPieces(redPieces, redKings, redPieces, redKings);
+        return ((bluePieces + 2*blueKings) - (redPieces + 2*redKings));
     }
 
-    // collectValidMove();
-    // for (int i = 0; i < validMoveCollection.si)
+    if(isBlue)
+    {
+        vector<Move> blueValidMoves;
+        collectBlueValidMoves(blueValidMoves);
+
+        int value = -INF;
+        for(int i=0; i<blueValidMoves.size(); i++)
+        {
+            makeMove(blueValidMoves[i]);
+            value = max(value, minimax(depth+1, height, !isBlue));
+            undoMove(blueValidMoves[i]);
+        }
+        return value;
+    }
+    else if(!isBlue)
+    {
+        vector<Move> redValidMoves;
+        collectRedValidMoves(redValidMoves);
+
+        int value = INF;
+        for(int i=0; i<redValidMoves.size(); i++)
+        {
+            makeMove(redValidMoves[i]);
+            value = min(value, minimax(depth+1, height, !isBlue));
+            undoMove(redValidMoves[i]);
+        }
+        return value;
+    }
+
 }
 
 void printGraphics()
@@ -215,7 +246,75 @@ void playVsComputer()
 
 void expertComputer()
 {
-    cout << "minimax score: " << minimax(0, 5, true, checkerBoard) << endl;
+
+
+    while (!isGameOver())
+    {
+        printBoard();
+        printGraphics();
+
+        cout << (redTurn ? "Your (red) " : "Computer's (blue) ") << "turn:" << endl;
+        Move move;
+        if (redTurn)
+        {
+            while (1)
+            {
+                while (1)
+                {
+                    move = getMove();
+                    if (isValidMove(move))
+                    {
+                        break;
+                    }
+                }
+                makeMove(move);
+                printBoard();
+                printGraphics();
+                int undo = 0;
+                // cout << "Want to undo??" << endl;
+                // cout << "1. YES" << endl;
+                // cout << "0. No" << endl;
+                // cin >> undo;
+                if (undo == 1)
+                {
+                    undoMove(move);
+                    // printBoard();
+                    // printGraphics();
+                }
+                else
+                    break;
+            }
+        }
+        else
+        {
+            vector<Move> blueValidMoves;
+            collectBlueValidMoves(blueValidMoves);
+
+            int maxVal = -INF;
+            int value;
+            Move bestMove;
+            for(int i=0; i<blueValidMoves.size(); i++)
+            {
+                makeMove(blueValidMoves[i]);
+                redTurn = !redTurn;                  // eitai disi just code run korar jonno. no logic
+                int value = minimax(1, 6, true);
+                if(value > maxVal)
+                {
+                    maxVal = value;
+                    bestMove = blueValidMoves[i]; 
+                }
+                undoMove(blueValidMoves[i]);
+            }
+            makeMove(bestMove);
+            printBoard();
+            printGraphics();
+        }
+    }
+
+    printBoard();
+    cout << "Gameover!!" << endl;
+
+    // cout << "minimax score: " << minimax(0, 6, true, ) << endl;
     ////  not started yet
 }
 
@@ -223,6 +322,7 @@ void intermediateComputer()
 {
 
     /////// not started yet
+
 }
 
 void beginnerComputer()
@@ -250,11 +350,11 @@ void beginnerComputer()
                 makeMove(move);
                 printBoard();
                 printGraphics();
-                int undo;
-                cout << "Want to undo??" << endl;
-                cout << "1. YES" << endl;
-                cout << "0. No" << endl;
-                cin >> undo;
+                int undo = 0;
+                // cout << "Want to undo??" << endl;
+                // cout << "1. YES" << endl;
+                // cout << "0. No" << endl;
+                // cin >> undo;
                 if (undo == 1)
                 {
                     undoMove(move);
@@ -485,22 +585,30 @@ void collectRedValidMoves(vector<Move> &redValidMoves)
     }
 }
 
-void countPieces()
+void countPieces(int &redPieces, int &redKings, int &bluePieces, int &blueKings)
 {
+    redPieces = 0, redKings = 0;
+    bluePieces = 0, blueKings = 0;
 
-    redCount = 0;
-    blueCount = 0;
     for (int i = 0; i < BOARD_SIZE; i++)
     {
         for (int j = 0; j < BOARD_SIZE; j++)
         {
-            if (checkerBoard[i][j] == RED_PIECE || checkerBoard[i][j] == RED_KING)
+            if (checkerBoard[i][j] == RED_PIECE)
             {
-                redCount++;
+                redPieces++;
             }
-            else if (checkerBoard[i][j] == BLUE_PIECE || checkerBoard[i][j] == BLUE_KING)
+            else if(checkerBoard[i][j] == RED_KING)
             {
-                blueCount++;
+                redKings++;
+            }
+            else if (checkerBoard[i][j] == BLUE_PIECE)
+            {
+                bluePieces++;
+            }
+            else if(checkerBoard[i][j] == BLUE_KING)
+            {
+                blueKings++;
             }
         }
     }
