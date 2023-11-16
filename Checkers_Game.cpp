@@ -42,10 +42,10 @@ bool isValidMove(Move move);
 void playVsHuman();
 void playVsComputer(); // not finished
 void beginnerComputer();
-void intermediateComputer(); // not started
+void intermediateComputer(); // not started      // if time not permits use less layer minimax here
 void expertComputer();       // not started
-int minimax(int depth, int height, bool isBlue);
-bool isGameOver(); // not start
+int minimax(int depth, int height, bool isBlue);    //not performing well add optimized utility function and more layer
+bool isGameOver(); // not start                     //add alpha beta pruning as it takes too much time to make move 
 void makeMove(Move move);
 void undoMove(Move latestMove);
 void promote(int row, int col);       // blue king hocce na so fix it
@@ -296,8 +296,7 @@ void expertComputer()
             for(int i=0; i<blueValidMoves.size(); i++)
             {
                 makeMove(blueValidMoves[i]);
-                redTurn = !redTurn;                  // eitai disi just code run korar jonno. no logic
-                int value = minimax(1, 6, true);
+                int value = minimax(0, 7, false);   // "false" because after blue's making move its red's turn
                 if(value > maxVal)
                 {
                     maxVal = value;
@@ -314,8 +313,6 @@ void expertComputer()
     printBoard();
     cout << "Gameover!!" << endl;
 
-    // cout << "minimax score: " << minimax(0, 6, true, ) << endl;
-    ////  not started yet
 }
 
 void intermediateComputer()
