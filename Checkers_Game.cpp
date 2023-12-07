@@ -38,17 +38,18 @@ vector<bool> isPromoted;
 void initiateBoard();
 void printBoard();
 Move getMove();
+void getMouseClick(int &x, int &y);
 bool isValidMove(Move move);
 void playVsHuman();
 void playVsComputer(); // not finished
 void beginnerComputer();
 void intermediateComputer(); // not started      // if time not permits use less layer minimax here
-void expertComputer();       // not started
+void expertComputer();       // not finished
 int minimax(int depth, int height, bool isBlue);    //not performing well add optimized utility function and more layer
-bool isGameOver(); // not start                     //add alpha beta pruning as it takes too much time to make move 
+bool isGameOver(); // not start                     //add alpha beta pruning as it takes too much time to make move
 void makeMove(Move move);
 void undoMove(Move latestMove);
-void promote(int row, int col);       // blue king hocce na so fix it
+void promote(int row, int col);
 void collectBlueValidMoves(vector<Move> &blueValidMoves);
 void collectRedValidMoves(vector<Move> &redValidMoves);
 void pushValidMove(Move move);
@@ -60,7 +61,6 @@ void countPieces(int &redPieces, int &redKings, int &bluePieces, int &blueKings)
 
 int main()
 {
-    // freopen("input.txt", "r", stdin);
     int gd = DETECT, gm;
     initgraph(&gd, &gm, "");
 
@@ -86,6 +86,10 @@ int main()
         playVsHuman();
     else if (option == 2)
         playVsComputer();
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    return main(); // Call your main function
 }
 
 int minimax(int depth, int height, bool isBlue)
@@ -296,11 +300,11 @@ void expertComputer()
             for(int i=0; i<blueValidMoves.size(); i++)
             {
                 makeMove(blueValidMoves[i]);
-                int value = minimax(0, 7, false);   // "false" because after blue's making move its red's turn
+                int value = minimax(0, 5, false);   // "false" because after blue's making move its red's turn
                 if(value > maxVal)
                 {
                     maxVal = value;
-                    bestMove = blueValidMoves[i]; 
+                    bestMove = blueValidMoves[i];
                 }
                 undoMove(blueValidMoves[i]);
             }
@@ -630,19 +634,19 @@ void playVsHuman()
             printBoard();
             printGraphics();
 
-            int undo;
-            cout << "Want to undo??" << endl;
-            cout << "1. YES" << endl;
-            cout << "(0, 2-9). No" << endl;
-            cin >> undo;
-            if (undo == 1)
-            {
-                undoMove(move);
-                printBoard();
-                printGraphics();
-            }
-            else
-                break;
+            // int undo;
+            // cout << "Want to undo??" << endl;
+            // cout << "1. YES" << endl;
+            // cout << "(0, 2-9). No" << endl;
+            // cin >> undo;
+            // if (undo == 1)
+            // {
+            //     undoMove(move);
+            //     printBoard();
+            //     printGraphics();
+            // }
+            // else
+            //     break;
         }
     }
     printBoard();
@@ -801,9 +805,32 @@ bool isValidMove(Move move)
 Move getMove()
 {
     Move move;
-    cout << "Enter move (fromRow fromCol toRow toCol): ";
-    cin >> move.fromRow >> move.fromCol >> move.toRow >> move.toCol;
+    int x, y;
+    getMouseClick(x, y);
+    move.fromRow = y/SQUARE_SIZE;
+    move.fromCol = x/SQUARE_SIZE;
+    getMouseClick(x, y);
+    move.toRow = y/SQUARE_SIZE;
+    move.toCol = x/SQUARE_SIZE;
+
     return move;
+}
+
+void getMouseClick(int &x, int &y)
+{
+    int clickCount = 0;
+
+    while (clickCount < 1)
+    {
+        if (ismouseclick(WM_LBUTTONDOWN))
+        {
+            getmouseclick(WM_LBUTTONDOWN, x, y);
+            clearmouseclick(WM_LBUTTONDOWN);
+            clickCount++;
+        }
+
+        //delay(100);
+    }
 }
 
 void initiateBoard()
