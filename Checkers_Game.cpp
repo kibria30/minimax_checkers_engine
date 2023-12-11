@@ -5,6 +5,7 @@
 #include <conio.h>
 #include <time.h>
 #include <vector>
+#include <string.h>
 
 using namespace std;
 
@@ -19,6 +20,7 @@ using namespace std;
 
 char checkerBoard[BOARD_SIZE][BOARD_SIZE];
 bool redTurn = true;
+char winner;
 
 enum SquareColor
 {
@@ -47,6 +49,7 @@ void intermediateComputer(); // not started      // if time not permits use less
 void expertComputer();       // not finished
 int minimax(int depth, int height, bool isBlue);    //not performing well add optimized utility function and more layer
 bool isGameOver(); // not start                     //add alpha beta pruning as it takes too much time to make move
+void gameOverGraphics(char winner);
 void makeMove(Move move);
 void undoMove(Move latestMove);
 void promote(int row, int col);
@@ -86,6 +89,8 @@ int main()
         playVsHuman();
     else if (option == 2)
         playVsComputer();
+    
+    return 0;
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
@@ -251,7 +256,6 @@ void playVsComputer()
 void expertComputer()
 {
 
-
     while (!isGameOver())
     {
         printBoard();
@@ -315,7 +319,10 @@ void expertComputer()
     }
 
     printBoard();
+    // printGraphics();
     cout << "Gameover!!" << endl;
+    gameOverGraphics(winner);
+    //delay(10000);
 
 }
 
@@ -381,7 +388,10 @@ void beginnerComputer()
     }
 
     printBoard();
+    // printGraphics();
     cout << "Gameover!!" << endl;
+    gameOverGraphics(winner);
+    //delay(10000);
 }
 
 void collectBlueValidMoves(vector<Move> &blueValidMoves)
@@ -650,7 +660,9 @@ void playVsHuman()
         }
     }
     printBoard();
+    printGraphics();
     cout << "Gameover!!" << endl;
+    gameOverGraphics(winner);
 }
 
 void undoMove(Move latestMove)
@@ -729,7 +741,91 @@ void promote(int row, int col)
 
 bool isGameOver()
 {
+    int redPiece, redKing;
+    int bluePiece, blueKing;
+
+    countPieces(redPiece, redKing, bluePiece, blueKing);
+
+    int totalRed = redPiece + redKing;
+    int totalBlue = bluePiece + blueKing;
+
+    if(!totalBlue)
+    {
+        cout<<"Red win!!!"<<endl;
+        winner = RED_PIECE;
+        return true;
+    }
+    else if(!totalRed)
+    {
+        cout<<"Blue win!!!"<<endl;
+        winner = BLUE_PIECE;
+        return true;
+    }
+
+    
+    if(!redTurn)
+    {
+        vector<Move> blueValidMoves;
+        collectBlueValidMoves(blueValidMoves);
+        if(!blueValidMoves.size())
+        {
+            cout<<"RED WIN!!!"<<endl;
+            winner = RED_PIECE;
+            return true;
+        }
+        else{
+            cout<<"blueMoves : "<<blueValidMoves.size();
+        }
+    }                                                      
+    
+    if(redTurn)
+    {
+        vector<Move> redValidMoves;
+        collectRedValidMoves(redValidMoves);
+        if(!redValidMoves.size())
+        {
+            cout<<"BLUE WIN!!!"<<endl;
+            winner = BLUE_PIECE;
+            return true;
+        }
+        else{
+            cout<<"redmoves : "<<redValidMoves.size();
+        }
+    }
+
     return false;
+}
+
+void gameOverGraphics(char winner)
+{
+    setcolor(YELLOW);
+    settextstyle(BOLD_FONT, HORIZ_DIR, 7);
+
+    char gameOver[] = "Game Over";
+    int xGameOver = (getmaxx() - textwidth(gameOver)) / 2;
+    int yGameOver = (getmaxy() - textheight(gameOver)) / 2 - 50;
+
+    outtextxy(xGameOver, yGameOver, gameOver);
+
+    char youWin[100];
+    if(winner == RED_PIECE)
+    {
+        strcpy(youWin, "Red win!!!");
+    }
+    else
+    {
+        strcpy(youWin, "Blue win!!!");
+    }
+     
+    int xYouWin = (getmaxx() - textwidth(youWin)) / 2;
+    int yYouWin = yGameOver + textheight(gameOver); 
+
+    setcolor(WHITE);
+    settextstyle(BOLD_FONT, HORIZ_DIR, 7);
+    outtextxy(xYouWin, yYouWin, youWin);
+
+    delay(15000);
+    closegraph();
 }
 
 bool isValidMove(Move move)
