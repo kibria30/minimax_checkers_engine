@@ -33,22 +33,23 @@ struct Move
     int fromRow, fromCol, toRow, toCol;
 };
 
-
 vector<char> eattenPieces;
 vector<bool> isPromoted;
 
 void initiateBoard();
 void printBoard();
+void graphicsMainMenu();
+void graphicsAIMenu();
 Move getMove();
 void getMouseClick(int &x, int &y);
 bool isValidMove(Move move);
 void playVsHuman();
 void playVsComputer(); // not finished
 void beginnerComputer();
-void intermediateComputer(); // not started      // if time not permits use less layer minimax here
-void expertComputer();       // not finished
-int minimax(int depth, int height, bool isBlue);    //not performing well add optimized utility function and more layer
-bool isGameOver(); // not start                     //add alpha beta pruning as it takes too much time to make move
+void intermediateComputer();                     // not started      // if time not permits use less layer minimax here
+void expertComputer();                           // not finished
+int minimax(int depth, int height, bool isBlue); // not performing well add optimized utility function and more layer
+bool isGameOver();                               // not start                     //add alpha beta pruning as it takes too much time to make move
 void gameOverGraphics(char winner);
 void makeMove(Move move);
 void undoMove(Move latestMove);
@@ -78,7 +79,21 @@ int main()
         cout << "1. Human vs Human" << endl;
         cout << "2. Human vs Computer" << endl;
         cout << "Enter your choice: ";
-        cin >> option;
+
+        graphicsMainMenu();
+
+        // getting mouse input
+        int x, y;
+        getMouseClick(x, y);
+        if ((x >= 180 && x <= 450) && (y >= 180 && y <= 230))
+        {
+            option = 1;
+        }
+        else if ((x >= 180 && x <= 450) && (y >= 250 && y <= 350))
+        {
+            option = 2;
+        }
+
         if (option == 1 || option == 2)
         {
             doCycle = false;
@@ -86,15 +101,51 @@ int main()
     } while (doCycle);
 
     if (option == 1)
+    {
         playVsHuman();
+    }
     else if (option == 2)
+    {
+        graphicsAIMenu();
         playVsComputer();
-    
+    }
     return 0;
 }
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+{
     return main(); // Call your main function
+}
+
+void graphicsMainMenu()
+{
+    cleardevice();
+    settextstyle(DEFAULT_FONT, HORIZ_DIR, 2);
+
+    outtextxy(50, 50, "Menu:");
+
+    rectangle(180, 180, 450, 230);
+    rectangle(180, 250, 450, 300);
+
+    outtextxy(200, 195, "1. Human vs Human");
+    outtextxy(200, 265, "2. Human vs AI");
+}
+
+void graphicsAIMenu()
+{
+    cleardevice();
+    settextstyle(DEFAULT_FONT, HORIZ_DIR, 2);
+
+    outtextxy(35, 50, "Back");
+    rectangle(25, 40, 100, 80);
+
+    rectangle(180, 150, 450, 200);
+    rectangle(180, 220, 450, 270);
+    rectangle(180, 290, 450, 340);
+
+    outtextxy(200, 165, "1. Beginner");
+    outtextxy(200, 235, "2. Intermediate");
+    outtextxy(200, 305, "3. Expert");
 }
 
 int minimax(int depth, int height, bool isBlue)
@@ -105,38 +156,37 @@ int minimax(int depth, int height, bool isBlue)
     if (depth == height)
     {
         countPieces(redPieces, redKings, redPieces, redKings);
-        return ((bluePieces + 2*blueKings) - (redPieces + 2*redKings));
+        return ((bluePieces + 2 * blueKings) - (redPieces + 2 * redKings));
     }
 
-    if(isBlue)
+    if (isBlue)
     {
         vector<Move> blueValidMoves;
         collectBlueValidMoves(blueValidMoves);
 
         int value = -INF;
-        for(int i=0; i<blueValidMoves.size(); i++)
+        for (int i = 0; i < blueValidMoves.size(); i++)
         {
             makeMove(blueValidMoves[i]);
-            value = max(value, minimax(depth+1, height, !isBlue));
+            value = max(value, minimax(depth + 1, height, !isBlue));
             undoMove(blueValidMoves[i]);
         }
         return value;
     }
-    else if(!isBlue)
+    else if (!isBlue)
     {
         vector<Move> redValidMoves;
         collectRedValidMoves(redValidMoves);
 
         int value = INF;
-        for(int i=0; i<redValidMoves.size(); i++)
+        for (int i = 0; i < redValidMoves.size(); i++)
         {
             makeMove(redValidMoves[i]);
-            value = min(value, minimax(depth+1, height, !isBlue));
+            value = min(value, minimax(depth + 1, height, !isBlue));
             undoMove(redValidMoves[i]);
         }
         return value;
     }
-
 }
 
 void printGraphics()
@@ -229,7 +279,21 @@ void playVsComputer()
         cout << "2. Intermediate" << endl;
         cout << "3. Expert" << endl;
         cout << "Enter your choice(1-3): ";
-        cin >> option;
+
+        int x, y;
+        getMouseClick(x, y);
+        if ((x >= 180 && x <= 450) && (y >= 150 && y <= 200))
+        {
+            option = 1;
+        }
+        else if ((x >= 180 && x <= 450) && (y >= 220 && y <= 270))
+        {
+            option = 2;
+        }
+        else if ((x >= 180 && x <= 450) && (y >= 290 && y <= 340))
+        {
+            option = 3;
+        }
 
         if (option == 1)
         {
@@ -301,11 +365,11 @@ void expertComputer()
             int maxVal = -INF;
             int value;
             Move bestMove;
-            for(int i=0; i<blueValidMoves.size(); i++)
+            for (int i = 0; i < blueValidMoves.size(); i++)
             {
                 makeMove(blueValidMoves[i]);
-                int value = minimax(0, 5, false);   // "false" because after blue's making move its red's turn
-                if(value > maxVal)
+                int value = minimax(0, 5, false); // "false" because after blue's making move its red's turn
+                if (value > maxVal)
                 {
                     maxVal = value;
                     bestMove = blueValidMoves[i];
@@ -322,15 +386,13 @@ void expertComputer()
     // printGraphics();
     cout << "Gameover!!" << endl;
     gameOverGraphics(winner);
-    //delay(10000);
-
+    // delay(10000);
 }
 
 void intermediateComputer()
 {
 
     /////// not started yet
-
 }
 
 void beginnerComputer()
@@ -391,7 +453,7 @@ void beginnerComputer()
     // printGraphics();
     cout << "Gameover!!" << endl;
     gameOverGraphics(winner);
-    //delay(10000);
+    // delay(10000);
 }
 
 void collectBlueValidMoves(vector<Move> &blueValidMoves)
@@ -609,7 +671,7 @@ void countPieces(int &redPieces, int &redKings, int &bluePieces, int &blueKings)
             {
                 redPieces++;
             }
-            else if(checkerBoard[i][j] == RED_KING)
+            else if (checkerBoard[i][j] == RED_KING)
             {
                 redKings++;
             }
@@ -617,7 +679,7 @@ void countPieces(int &redPieces, int &redKings, int &bluePieces, int &blueKings)
             {
                 bluePieces++;
             }
-            else if(checkerBoard[i][j] == BLUE_KING)
+            else if (checkerBoard[i][j] == BLUE_KING)
             {
                 blueKings++;
             }
@@ -749,47 +811,48 @@ bool isGameOver()
     int totalRed = redPiece + redKing;
     int totalBlue = bluePiece + blueKing;
 
-    if(!totalBlue)
+    if (!totalBlue)
     {
-        cout<<"Red win!!!"<<endl;
+        cout << "Red win!!!" << endl;
         winner = RED_PIECE;
         return true;
     }
-    else if(!totalRed)
+    else if (!totalRed)
     {
-        cout<<"Blue win!!!"<<endl;
+        cout << "Blue win!!!" << endl;
         winner = BLUE_PIECE;
         return true;
     }
 
-    
-    if(!redTurn)
+    if (!redTurn)
     {
         vector<Move> blueValidMoves;
         collectBlueValidMoves(blueValidMoves);
-        if(!blueValidMoves.size())
+        if (!blueValidMoves.size())
         {
-            cout<<"RED WIN!!!"<<endl;
+            cout << "RED WIN!!!" << endl;
             winner = RED_PIECE;
             return true;
         }
-        else{
-            cout<<"blueMoves : "<<blueValidMoves.size();
+        else
+        {
+            cout << "blueMoves : " << blueValidMoves.size();
         }
-    }                                                      
-    
-    if(redTurn)
+    }
+
+    if (redTurn)
     {
         vector<Move> redValidMoves;
         collectRedValidMoves(redValidMoves);
-        if(!redValidMoves.size())
+        if (!redValidMoves.size())
         {
-            cout<<"BLUE WIN!!!"<<endl;
+            cout << "BLUE WIN!!!" << endl;
             winner = BLUE_PIECE;
             return true;
         }
-        else{
-            cout<<"redmoves : "<<redValidMoves.size();
+        else
+        {
+            cout << "redmoves : " << redValidMoves.size();
         }
     }
 
@@ -808,7 +871,7 @@ void gameOverGraphics(char winner)
     outtextxy(xGameOver, yGameOver, gameOver);
 
     char youWin[100];
-    if(winner == RED_PIECE)
+    if (winner == RED_PIECE)
     {
         strcpy(youWin, "Red win!!!");
     }
@@ -816,9 +879,9 @@ void gameOverGraphics(char winner)
     {
         strcpy(youWin, "Blue win!!!");
     }
-     
+
     int xYouWin = (getmaxx() - textwidth(youWin)) / 2;
-    int yYouWin = yGameOver + textheight(gameOver); 
+    int yYouWin = yGameOver + textheight(gameOver);
 
     setcolor(WHITE);
     settextstyle(BOLD_FONT, HORIZ_DIR, 7);
@@ -903,11 +966,11 @@ Move getMove()
     Move move;
     int x, y;
     getMouseClick(x, y);
-    move.fromRow = y/SQUARE_SIZE;
-    move.fromCol = x/SQUARE_SIZE;
+    move.fromRow = y / SQUARE_SIZE;
+    move.fromCol = x / SQUARE_SIZE;
     getMouseClick(x, y);
-    move.toRow = y/SQUARE_SIZE;
-    move.toCol = x/SQUARE_SIZE;
+    move.toRow = y / SQUARE_SIZE;
+    move.toCol = x / SQUARE_SIZE;
 
     return move;
 }
@@ -924,8 +987,6 @@ void getMouseClick(int &x, int &y)
             clearmouseclick(WM_LBUTTONDOWN);
             clickCount++;
         }
-
-        //delay(100);
     }
 }
 
