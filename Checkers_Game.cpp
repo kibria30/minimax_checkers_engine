@@ -40,6 +40,7 @@ void initiateBoard();
 void printBoard();
 void graphicsMainMenu();
 void graphicsAIMenu();
+void scoreBoardGraphics();
 Move getMove();
 void getMouseClick(int &x, int &y);
 bool isValidMove(Move move);
@@ -117,6 +118,41 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     return main(); // Call your main function
 }
 
+void scoreBoardGraphics()
+{
+    int redPiece, redKing;
+    int bluePiece, blueKing;
+
+    countPieces(redPiece, redKing, bluePiece, blueKing);
+
+    int totalRedScore = 12 - bluePiece - blueKing;
+    int totalBlueScore = 12 - redPiece - redKing;
+
+    outtextxy(520, 200, "Turn : ");
+    if (redTurn)
+    {
+        drawCheckerPiece(530, 230, RED_PIECE);
+    }
+    else
+    {
+        drawCheckerPiece(530, 230, BLUE_PIECE);
+    }
+
+    drawCheckerPiece(490, 360, RED_PIECE);
+    char redScore[] = " : ";
+    redScore[3] = (char)((totalRedScore / 10) + 48);
+    redScore[4] = (char)((totalRedScore % 10) + 48);
+    redScore[5] = '\0';
+    outtextxy(546, 383, redScore);
+
+    drawCheckerPiece(490, 62, BLUE_PIECE);
+    char blueScore[] = " : ";
+    blueScore[3] = (char)(totalBlueScore / 10 + 48);
+    blueScore[4] = (char)(totalBlueScore % 10 + 48);
+    blueScore[5] = '\0';
+    outtextxy(546, 82, blueScore);
+}
+
 void graphicsMainMenu()
 {
     cleardevice();
@@ -191,6 +227,7 @@ int minimax(int depth, int height, bool isBlue)
 
 void printGraphics()
 {
+    scoreBoardGraphics();
 
     for (int i = 0; i < BOARD_SIZE; i++)
     {
