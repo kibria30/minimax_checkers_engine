@@ -416,7 +416,7 @@ void expertComputer()
             for (int i = 0; i < blueValidMoves.size(); i++)
             {
                 makeMove(blueValidMoves[i]);
-                int value = minimax(0, 7, false); // "false" because after blue's making move its red's turn
+                int value = minimax(0, 5, false); // "false" because after blue's making move its red's turn
                 if (value > maxVal)
                 {
                     maxVal = value;
