@@ -46,10 +46,10 @@ bool isValidMove(Move move);
 void playVsHuman();
 void playVsComputer(); // not finished
 void beginnerComputer();
-void intermediateComputer();                     // not started      // if time not permits use less layer minimax here
-void expertComputer();                           // not finished
-int minimax(int depth, int height, bool isBlue); // not performing well add optimized utility function and more layer
-bool isGameOver();                               // not start                     //add alpha beta pruning as it takes too much time to make move
+void intermediateComputer();                                          // not started      // if time not permits use less layer minimax here
+void expertComputer();                                                // not finished
+int minimax(int depth, int height, int alpha, int beta, bool isBlue); // not performing well add optimized utility function and more layer
+bool isGameOver();                                                    // not start                     //add alpha beta pruning as it takes too much time to make move
 void gameOverGraphics(char winner);
 void makeMove(Move move);
 void undoMove(Move latestMove);
@@ -183,7 +183,7 @@ void graphicsAIMenu()
     outtextxy(200, 305, "3. Expert");
 }
 
-int minimax(int depth, int height, bool isBlue)
+int minimax(int depth, int height, int alpha, int beta, bool isBlue)
 { // AI is blue. So blue is maxplayer.
 
     int redPieces, redKings, bluePieces, blueKings;
@@ -199,28 +199,54 @@ int minimax(int depth, int height, bool isBlue)
         vector<Move> blueValidMoves;
         collectBlueValidMoves(blueValidMoves);
 
-        int value = -INF;
+        int maxVal = -INF;
+        int value;
         for (int i = 0; i < blueValidMoves.size(); i++)
         {
             makeMove(blueValidMoves[i]);
-            value = max(value, minimax(depth + 1, height, !isBlue));
+            value = minimax(depth + 1, height, alpha, beta, !isBlue);
             undoMove(blueValidMoves[i]);
+            if (value > maxVal)
+            {
+                maxVal = value;
+            }
+            if (value > alpha)
+            {
+                alpha = value;
+            }
+            if (beta <= alpha)
+            {
+                break;
+            }
         }
-        return value;
+        return maxVal;
     }
     else if (!isBlue)
     {
         vector<Move> redValidMoves;
         collectRedValidMoves(redValidMoves);
 
-        int value = INF;
+        int minVal = INF;
+        int value;
         for (int i = 0; i < redValidMoves.size(); i++)
         {
             makeMove(redValidMoves[i]);
-            value = min(value, minimax(depth + 1, height, !isBlue));
+            value = minimax(depth + 1, height, alpha, beta, !isBlue);
             undoMove(redValidMoves[i]);
+            if (value < minVal)
+            {
+                minVal = value;
+            }
+            if (value < beta)
+            {
+                beta = value;
+            }
+            if (beta <= alpha)
+            {
+                break;
+            }
         }
-        return value;
+        return minVal;
     }
 }
 
@@ -365,13 +391,13 @@ void expertComputer()
         printBoard();
         printGraphics();
 
-        if(redTurn)
+        if (redTurn)
         {
-            cout<<"Red turn : "<<endl;
+            cout << "Red turn : " << endl;
         }
         else
         {
-            cout<<"Blue turn: "<<endl;
+            cout << "Blue turn: " << endl;
         }
 
         Move move;
@@ -412,17 +438,28 @@ void expertComputer()
 
             int maxVal = -INF;
             int value;
+            int alpha = -INF;
+            int beta = +INF;
             Move bestMove;
             for (int i = 0; i < blueValidMoves.size(); i++)
             {
                 makeMove(blueValidMoves[i]);
-                int value = minimax(0, 5, false); // "false" because after blue's making move its red's turn
+                int value = minimax(0, 8, alpha, beta, false); // "false" because after blue's making move its red's turn
+                undoMove(blueValidMoves[i]);
                 if (value > maxVal)
                 {
                     maxVal = value;
                     bestMove = blueValidMoves[i];
                 }
-                undoMove(blueValidMoves[i]);
+
+                if (value > alpha)
+                {
+                    alpha = value;
+                }
+                if (beta <= alpha)
+                {
+                    break;
+                }
             }
             makeMove(bestMove);
             printBoard();
@@ -452,13 +489,13 @@ void beginnerComputer()
         printBoard();
         printGraphics();
 
-        if(redTurn)
+        if (redTurn)
         {
-            cout<<"Red turn : "<<endl;
+            cout << "Red turn : " << endl;
         }
         else
         {
-            cout<<"Blue turn: "<<endl;
+            cout << "Blue turn: " << endl;
         }
 
         Move move;
@@ -754,13 +791,13 @@ void playVsHuman()
             printBoard();
             printGraphics();
 
-            if(redTurn)
+            if (redTurn)
             {
-                cout<<"Red turn : "<<endl;
+                cout << "Red turn : " << endl;
             }
             else
             {
-                cout<<"Blue turn: "<<endl;
+                cout << "Blue turn: " << endl;
             }
 
             Move move;
@@ -871,7 +908,6 @@ void promote(int row, int col)
     {
         checkerBoard[row][col] = RED_KING;
     }
-        
 }
 
 bool isGameOver()
@@ -947,7 +983,7 @@ void gameOverGraphics(char winner)
     if (winner == RED_PIECE)
     {
         char msg[] = "Red win!!!";
-        for(int i=0; i<10; i++)
+        for (int i = 0; i < 10; i++)
         {
             youWin[i] = msg[i];
         }
@@ -956,7 +992,7 @@ void gameOverGraphics(char winner)
     else
     {
         char msg[] = "Blue win!!!";
-        for(int i=0; i<11; i++)
+        for (int i = 0; i < 11; i++)
         {
             youWin[i] = msg[i];
         }
@@ -1091,7 +1127,6 @@ void initiateBoard()
             {
                 checkerBoard[row][col] = EMPTY;
             }
-                
         }
     }
 }
@@ -1112,7 +1147,6 @@ void printBoard()
             {
                 cout << checkerBoard[row][col] << " ";
             }
-                
         }
         cout << endl;
     }
