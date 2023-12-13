@@ -5,7 +5,6 @@
 #include <conio.h>
 #include <time.h>
 #include <vector>
-#include <string.h>
 
 using namespace std;
 
@@ -276,9 +275,13 @@ void drawCheckerPiece(int x, int y, char color)
 
     setcolor(WHITE);
     if (color == RED_PIECE)
+    {
         setfillstyle(SOLID_FILL, RED);
+    }
     else
+    {
         setfillstyle(SOLID_FILL, BLUE);
+    }
     circle(x + SQUARE_SIZE / 2, y + SQUARE_SIZE / 2, SQUARE_SIZE / 2 - 5);
     floodfill(x + SQUARE_SIZE / 2, y + SQUARE_SIZE / 2, WHITE);
 }
@@ -440,7 +443,15 @@ void beginnerComputer()
 
         printBoard();
         printGraphics();
-        cout << (redTurn ? "Your (red) " : "Computer's (blue) ") << "turn:" << endl;
+        if(redTurn)
+        {
+            cout<<"Red turn : "<<endl;
+        }
+        else
+        {
+            cout<<"Blue turn: "<<endl;
+        }
+        //cout << (redTurn ? "Your (red) " : "Computer's (blue) ") << "turn:" << endl;
         Move move;
         if (redTurn)
         {
@@ -910,11 +921,21 @@ void gameOverGraphics(char winner)
     char youWin[100];
     if (winner == RED_PIECE)
     {
-        strcpy(youWin, "Red win!!!");
+        char msg[] = "Red win!!!";
+        for(int i=0; i<10; i++)
+        {
+            youWin[i] = msg[i];
+        }
+        youWin[10] = '\0';
     }
     else
     {
-        strcpy(youWin, "Blue win!!!");
+        char msg[] = "Blue win!!!";
+        for(int i=0; i<11; i++)
+        {
+            youWin[i] = msg[i];
+        }
+        youWin[10] = '\0';
     }
 
     int xYouWin = (getmaxx() - textwidth(youWin)) / 2;
@@ -1052,9 +1073,13 @@ void printBoard()
         for (int col = 0; col < BOARD_SIZE; col++)
         {
             if (!checkerBoard[row][col])
+            {
                 cout << ". ";
+            }
             else
+            {
                 cout << checkerBoard[row][col] << " ";
+            }
         }
         cout << endl;
     }
