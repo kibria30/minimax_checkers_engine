@@ -365,7 +365,15 @@ void expertComputer()
         printBoard();
         printGraphics();
 
-        cout << (redTurn ? "Your (red) " : "Computer's (blue) ") << "turn:" << endl;
+        if(redTurn)
+        {
+            cout<<"Red turn : "<<endl;
+        }
+        else
+        {
+            cout<<"Blue turn: "<<endl;
+        }
+
         Move move;
         if (redTurn)
         {
@@ -408,7 +416,7 @@ void expertComputer()
             for (int i = 0; i < blueValidMoves.size(); i++)
             {
                 makeMove(blueValidMoves[i]);
-                int value = minimax(0, 5, false); // "false" because after blue's making move its red's turn
+                int value = minimax(0, 7, false); // "false" because after blue's making move its red's turn
                 if (value > maxVal)
                 {
                     maxVal = value;
@@ -443,6 +451,7 @@ void beginnerComputer()
 
         printBoard();
         printGraphics();
+
         if(redTurn)
         {
             cout<<"Red turn : "<<endl;
@@ -451,7 +460,7 @@ void beginnerComputer()
         {
             cout<<"Blue turn: "<<endl;
         }
-        //cout << (redTurn ? "Your (red) " : "Computer's (blue) ") << "turn:" << endl;
+
         Move move;
         if (redTurn)
         {
@@ -744,7 +753,16 @@ void playVsHuman()
         {
             printBoard();
             printGraphics();
-            cout << (redTurn ? "Red's " : "Blue's ") << "turn:" << endl;
+
+            if(redTurn)
+            {
+                cout<<"Red turn : "<<endl;
+            }
+            else
+            {
+                cout<<"Blue turn: "<<endl;
+            }
+
             Move move;
             do
             {
@@ -836,7 +854,9 @@ void makeMove(Move move)
         isPromoted.push_back(true);
     }
     else
+    {
         isPromoted.push_back(false);
+    }
 
     redTurn = !redTurn;
 }
@@ -844,9 +864,14 @@ void makeMove(Move move)
 void promote(int row, int col)
 {
     if (checkerBoard[row][col] == BLUE_PIECE)
+    {
         checkerBoard[row][col] = BLUE_KING;
+    }
     else if (checkerBoard[row][col] == RED_PIECE)
+    {
         checkerBoard[row][col] = RED_KING;
+    }
+        
 }
 
 bool isGameOver()
@@ -1055,11 +1080,18 @@ void initiateBoard()
         for (int col = 0; col < BOARD_SIZE; col++)
         {
             if ((row + col) % 2 && row < 3)
+            {
                 checkerBoard[row][col] = BLUE_PIECE;
+            }
             else if ((row + col) % 2 && row > 4)
+            {
                 checkerBoard[row][col] = RED_PIECE;
+            }
             else
+            {
                 checkerBoard[row][col] = EMPTY;
+            }
+                
         }
     }
 }
@@ -1080,6 +1112,7 @@ void printBoard()
             {
                 cout << checkerBoard[row][col] << " ";
             }
+                
         }
         cout << endl;
     }
