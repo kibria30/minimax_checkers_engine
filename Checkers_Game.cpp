@@ -75,8 +75,10 @@ int main()
 
     int option;
     initiateBoard();
+    // printGraphics();
 
     bool doCycle = true;
+
     do
     {
         cout << "1. Human vs Human" << endl;
@@ -85,6 +87,7 @@ int main()
 
         graphicsMainMenu();
 
+        // getting mouse input
         int x, y;
         getMouseClick(x, y);
         if ((x >= 180 && x <= 450) && (y >= 180 && y <= 230))
@@ -112,6 +115,11 @@ int main()
         playVsComputer();
     }
     return 0;
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+{
+    return main(); // Call your main function
 }
 
 void scoreBoardGraphics()
@@ -168,8 +176,8 @@ void graphicsAIMenu()
     cleardevice();
     settextstyle(DEFAULT_FONT, HORIZ_DIR, 2);
 
-    outtextxy(35, 50, "AI Level:");
-    // rectangle(25, 40, 100, 80);
+    outtextxy(35, 50, "Back");
+    rectangle(25, 40, 100, 80);
 
     rectangle(180, 150, 450, 200);
     rectangle(180, 220, 450, 270);
@@ -262,6 +270,7 @@ void printGraphics()
     {
         for (int j = 0; j < BOARD_SIZE; j++)
         {
+
             SquareColor squareColor = (i + j) % 2 == 0 ? SQUARE_WHITE : SQUARE_BROWN;
             drawSquare(j * SQUARE_SIZE, i * SQUARE_SIZE, squareColor);
 
@@ -270,7 +279,7 @@ void printGraphics()
                 drawCheckerPiece(j * SQUARE_SIZE, i * SQUARE_SIZE, RED_PIECE);
             }
             else if (checkerBoard[i][j] == BLUE_PIECE)
-            {
+            { // Place pieces on odd (i+j) squares
                 drawCheckerPiece(j * SQUARE_SIZE, i * SQUARE_SIZE, BLUE_PIECE);
             }
             else if (checkerBoard[i][j] == RED_KING)
@@ -287,6 +296,7 @@ void printGraphics()
 
 void drawSquare(int x, int y, SquareColor color)
 {
+
     if (color == SQUARE_WHITE)
     {
         setfillstyle(SOLID_FILL, WHITE);
@@ -300,6 +310,7 @@ void drawSquare(int x, int y, SquareColor color)
 
 void drawCheckerPiece(int x, int y, char color)
 {
+
     setcolor(WHITE);
     if (color == RED_PIECE)
     {
@@ -332,10 +343,12 @@ void drawKingPiece(int x, int y, char color)
     setbkcolor(RED);
     int textWidth = textwidth("K");
     int textHeight = textheight("K");
-    outtextxy(x + SQUARE_SIZE / 2 - textWidth / 2, y + SQUARE_SIZE / 2 - textHeight / 2, "K");
+    outtextxy(x + SQUARE_SIZE / 2 - textWidth / 2, y + SQUARE_SIZE / 2 - textHeight / 2, "K"); // check it please
+}
 
 void playVsComputer()
 {
+
     int option;
 
     while (1)
@@ -384,6 +397,7 @@ void playVsComputer()
 
 void expertComputer()
 {
+
     while (!isGameOver())
     {
         printBoard();
@@ -414,6 +428,13 @@ void expertComputer()
                 makeMove(move);
                 printBoard();
                 printGraphics();
+                int undo = 0;
+                if (undo == 1)
+                {
+                    undoMove(move);
+                }
+                else
+                    break;
             }
         }
         else
@@ -429,7 +450,7 @@ void expertComputer()
             for (int i = 0; i < blueValidMoves.size(); i++)
             {
                 makeMove(blueValidMoves[i]);
-                int value = minimax(0, 9, alpha, beta, false);
+                int value = minimax(0, 9, alpha, beta, false); // "false" because after blue's making move its red's turn
                 undoMove(blueValidMoves[i]);
                 if (value > maxVal)
                 {
@@ -453,13 +474,16 @@ void expertComputer()
     }
 
     printBoard();
+    // printGraphics();
     cout << "Gameover!!" << endl;
     gameOverGraphics(winner);
+    // delay(10000);
 }
 
 void intermediateComputer()
 {
-    while (!isGameOver())
+
+   while (!isGameOver())
     {
         printBoard();
         printGraphics();
@@ -489,6 +513,13 @@ void intermediateComputer()
                 makeMove(move);
                 printBoard();
                 printGraphics();
+                int undo = 0;
+                if (undo == 1)
+                {
+                    undoMove(move);
+                }
+                else
+                    break;
             }
         }
         else
@@ -501,14 +532,11 @@ void intermediateComputer()
             int alpha = -INF;
             int beta = +INF;
             Move bestMove;
-
             for (int i = 0; i < blueValidMoves.size(); i++)
             {
                 makeMove(blueValidMoves[i]);
-                int value = minimax(0, 2, alpha, beta, false);
-
+                int value = minimax(0, 3, alpha, beta, false); // "false" because after blue's making move its red's turn
                 undoMove(blueValidMoves[i]);
-
                 if (value > maxVal)
                 {
                     maxVal = value;
@@ -525,7 +553,6 @@ void intermediateComputer()
                 }
             }
             makeMove(bestMove);
-            
             printBoard();
             printGraphics();
         }
@@ -570,27 +597,40 @@ void beginnerComputer()
                 makeMove(move);
                 printBoard();
                 printGraphics();
+                int undo = 0;
+                // cout << "Want to undo??" << endl;
+                // cout << "1. YES" << endl;
+                // cout << "0. No" << endl;
+                // cin >> undo;
+                if (undo == 1)
+                {
+                    undoMove(move);
+                    printBoard();
+                    printGraphics();
+                }
+                else
+                    break;
             }
         }
         else
         {
             int random;
             vector<Move> blueValidMoves;
-
             collectBlueValidMoves(blueValidMoves);
             srand(time(0));
             random = (int)(rand() % blueValidMoves.size());
             move = blueValidMoves[random];
             makeMove(move);
-
             printBoard();
             printGraphics();
         }
     }
 
     printBoard();
+    // printGraphics();
     cout << "Gameover!!" << endl;
     gameOverGraphics(winner);
+    // delay(10000);
 }
 
 void collectBlueValidMoves(vector<Move> &blueValidMoves)
@@ -601,10 +641,9 @@ void collectBlueValidMoves(vector<Move> &blueValidMoves)
     {
         for (int j = 0; j < BOARD_SIZE; j++)
         {
+
             if (checkerBoard[i][j] == EMPTY || checkerBoard[i][j] == RED_PIECE || checkerBoard[i][j] == RED_KING)
-            {
                 continue;
-            }
 
             else if (checkerBoard[i][j] == BLUE_PIECE)
             {
@@ -638,6 +677,7 @@ void collectBlueValidMoves(vector<Move> &blueValidMoves)
             }
             else if (checkerBoard[i][j] == BLUE_KING)
             {
+
                 move.fromRow = i;
                 move.fromCol = j;
                 move.toRow = i - 1;
@@ -861,10 +901,7 @@ void playVsHuman()
 
 void undoMove(Move latestMove)
 {
-    int fromRow = latestMove.fromRow;
-    int fromCol = latestMove.fromCol;
-    int toRow = latestMove.toRow;
-    int toCol = latestMove.toCol;
+    int fromRow = latestMove.fromRow, fromCol = latestMove.fromCol, toRow = latestMove.toRow, toCol = latestMove.toCol;
 
     if (!isPromoted.back())
     {
@@ -897,15 +934,12 @@ void undoMove(Move latestMove)
         eattenPieces.pop_back();
     }
 
-    redTurn = !redTurn;
+    redTurn = !redTurn; // make move alter player so we need re-alter player
 }
 
 void makeMove(Move move)
 {
-    int fromRow = move.fromRow;
-    int fromCol = move.fromCol;
-    int toRow = move.toRow;
-    int toCol = move.toCol;
+    int fromRow = move.fromRow, fromCol = move.fromCol, toRow = move.toRow, toCol = move.toCol;
 
     char piece = checkerBoard[fromRow][fromCol];
     checkerBoard[fromRow][fromCol] = EMPTY;
@@ -920,8 +954,7 @@ void makeMove(Move move)
         checkerBoard[jumpedRow][jumpedCol] = EMPTY;
     }
 
-    if ((piece == RED_PIECE || piece == BLUE_PIECE) && ((redTurn && toRow == 0) 
-        || (!redTurn && toRow == BOARD_SIZE - 1)))
+    if ((piece == RED_PIECE || piece == BLUE_PIECE) && ((redTurn && toRow == 0) || (!redTurn && toRow == BOARD_SIZE - 1)))
     {
         promote(toRow, toCol);
         isPromoted.push_back(true);
@@ -1055,8 +1088,7 @@ bool isValidMove(Move move)
     }
 
     char piece = checkerBoard[fromRow][fromCol];
-    if (piece == EMPTY || (redTurn && piece != RED_PIECE && piece != RED_KING) 
-        || (!redTurn && piece != BLUE_PIECE && piece != BLUE_KING))
+    if (piece == EMPTY || (redTurn && piece != RED_PIECE && piece != RED_KING) || (!redTurn && piece != BLUE_PIECE && piece != BLUE_KING))
     {
         return false;
     }
@@ -1091,24 +1123,21 @@ bool isValidMove(Move move)
 
         if (piece == RED_PIECE && (toRow - fromRow) == -2)
         {
-            if ((redTurn && (checkerBoard[jumpedRow][jumpedCol] == BLUE_PIECE || checkerBoard[jumpedRow][jumpedCol] == BLUE_KING)) 
-                || (!redTurn && (checkerBoard[jumpedRow][jumpedCol] == RED_PIECE || checkerBoard[jumpedRow][jumpedCol] == RED_KING)))
+            if ((redTurn && (checkerBoard[jumpedRow][jumpedCol] == BLUE_PIECE || checkerBoard[jumpedRow][jumpedCol] == BLUE_KING)) || (!redTurn && (checkerBoard[jumpedRow][jumpedCol] == RED_PIECE || checkerBoard[jumpedRow][jumpedCol] == RED_KING)))
             {
                 return true;
             }
         }
         else if (piece == BLUE_PIECE && (toRow - fromRow) == 2)
         {
-            if ((redTurn && (checkerBoard[jumpedRow][jumpedCol] == BLUE_PIECE || checkerBoard[jumpedRow][jumpedCol] == BLUE_KING)) 
-                || (!redTurn && (checkerBoard[jumpedRow][jumpedCol] == RED_PIECE || checkerBoard[jumpedRow][jumpedCol] == RED_KING)))
+            if ((redTurn && (checkerBoard[jumpedRow][jumpedCol] == BLUE_PIECE || checkerBoard[jumpedRow][jumpedCol] == BLUE_KING)) || (!redTurn && (checkerBoard[jumpedRow][jumpedCol] == RED_PIECE || checkerBoard[jumpedRow][jumpedCol] == RED_KING)))
             {
                 return true;
             }
         }
         else if (piece == RED_KING || piece == BLUE_KING)
         {
-            if ((redTurn && (checkerBoard[jumpedRow][jumpedCol] == BLUE_PIECE || checkerBoard[jumpedRow][jumpedCol] == BLUE_KING)) 
-                || (!redTurn && (checkerBoard[jumpedRow][jumpedCol] == RED_PIECE || checkerBoard[jumpedRow][jumpedCol] == RED_KING)))
+            if ((redTurn && (checkerBoard[jumpedRow][jumpedCol] == BLUE_PIECE || checkerBoard[jumpedRow][jumpedCol] == BLUE_KING)) || (!redTurn && (checkerBoard[jumpedRow][jumpedCol] == RED_PIECE || checkerBoard[jumpedRow][jumpedCol] == RED_KING)))
             {
                 return true;
             }
@@ -1315,31 +1344,29 @@ void upcomingMoves(int row, int col, vector<Move> &validMoves)
 }
 void showMoves(vector<Move> validMoves)
 {
-    for (int i = 0; i < validMoves.size(); i++)
+    for (int i =0; i<validMoves.size(); i++)
     {
         setcolor(BLACK);
         setfillstyle(SOLID_FILL, BLACK);
 
-        circle(validMoves[i].toCol * SQUARE_SIZE + SQUARE_SIZE / 2, validMoves[i].toRow * SQUARE_SIZE
-                 + SQUARE_SIZE / 2, SQUARE_SIZE / 2 - 20);
-        floodfill(validMoves[i].toCol * SQUARE_SIZE + SQUARE_SIZE / 2, validMoves[i].toRow * SQUARE_SIZE
-                 + SQUARE_SIZE / 2, BLACK);
+        circle(validMoves[i].toCol*SQUARE_SIZE + SQUARE_SIZE / 2, validMoves[i].toRow*SQUARE_SIZE + SQUARE_SIZE / 2, SQUARE_SIZE / 2 - 20);
+        floodfill(validMoves[i].toCol*SQUARE_SIZE + SQUARE_SIZE / 2, validMoves[i].toRow*SQUARE_SIZE + SQUARE_SIZE / 2, BLACK);
+
     }
 }
 
-void removeShowedMoves(vector<Move> validMoves)
-{
-    for (int i = 0; i < validMoves.size(); i++)
+void removeShowedMoves(vector<Move> validMoves) {
+    for (int i =0; i<validMoves.size(); i++)
     {
         setcolor(BROWN);
         setfillstyle(SOLID_FILL, BROWN);
 
-        circle(validMoves[i].toCol * SQUARE_SIZE + SQUARE_SIZE / 2, validMoves[i].toRow * SQUARE_SIZE
-                 + SQUARE_SIZE / 2, SQUARE_SIZE / 2 - 20);
-        floodfill(validMoves[i].toCol * SQUARE_SIZE + SQUARE_SIZE / 2, validMoves[i].toRow * SQUARE_SIZE
-                 + SQUARE_SIZE / 2, BROWN);
+        circle(validMoves[i].toCol*SQUARE_SIZE + SQUARE_SIZE / 2, validMoves[i].toRow*SQUARE_SIZE + SQUARE_SIZE / 2, SQUARE_SIZE / 2 - 20);
+        floodfill(validMoves[i].toCol*SQUARE_SIZE + SQUARE_SIZE / 2, validMoves[i].toRow*SQUARE_SIZE + SQUARE_SIZE / 2, BROWN);
+
     }
 }
+
 
 Move getMove()
 {
@@ -1360,12 +1387,14 @@ Move getMove()
     undoSelection(move.fromCol, move.fromRow);
 
     removeShowedMoves(validMoves);
+
     return move;
 }
 
 void getMouseClick(int &x, int &y)
 {
     int clickCount = 0;
+
     while (clickCount < 1)
     {
         if (ismouseclick(WM_LBUTTONDOWN))
