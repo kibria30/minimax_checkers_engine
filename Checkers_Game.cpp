@@ -42,7 +42,8 @@ void graphicsAIMenu();
 void scoreBoardGraphics();
 void showSelectedCell(int row, int col);
 void undoSelection(int row, int col);
-void processTheNode(int row, int col);
+void showMoves(int row, int col);
+void removeShowedMoves(int row, int col);
 Move getMove();
 void getMouseClick(int &x, int &y);
 bool isValidMove(Move move);
@@ -190,14 +191,8 @@ int evaluateState(int height)
 {
     int redPieces, redKings, bluePieces, blueKings;
     countPieces(redPieces, redKings, bluePieces, blueKings);
-    if (height % 2)
-    {
-        return ((bluePieces + 2 * blueKings) - (redPieces + 2 * redKings));
-    }
-    else
-    {
-        return ((redPieces + 2 * redKings) - (bluePieces + 2 * blueKings));
-    }
+
+    return ((bluePieces + 2 * blueKings) - (redPieces + 2 * redKings));
 }
 
 int minimax(int depth, int height, int alpha, int beta, bool isBlue)
@@ -207,8 +202,7 @@ int minimax(int depth, int height, int alpha, int beta, bool isBlue)
 
     if (depth == height)
     {
-        // countPieces(redPieces, redKings, redPieces, redKings);
-        return evaluateState(height); //((bluePieces + 2 * blueKings) - (redPieces + 2 * redKings));
+        return evaluateState(height);
     }
 
     if (isBlue)
@@ -434,15 +428,9 @@ void expertComputer()
                 printBoard();
                 printGraphics();
                 int undo = 0;
-                // cout << "Want to undo??" << endl;
-                // cout << "1. YES" << endl;
-                // cout << "0. No" << endl;
-                // cin >> undo;
                 if (undo == 1)
                 {
                     undoMove(move);
-                    // printBoard();
-                    // printGraphics();
                 }
                 else
                     break;
@@ -494,7 +482,84 @@ void expertComputer()
 void intermediateComputer()
 {
 
-    /////// not started yet
+   while (!isGameOver())
+    {
+        printBoard();
+        printGraphics();
+
+        if (redTurn)
+        {
+            cout << "Red turn : " << endl;
+        }
+        else
+        {
+            cout << "Blue turn: " << endl;
+        }
+
+        Move move;
+        if (redTurn)
+        {
+            while (1)
+            {
+                while (1)
+                {
+                    move = getMove();
+                    if (isValidMove(move))
+                    {
+                        break;
+                    }
+                }
+                makeMove(move);
+                printBoard();
+                printGraphics();
+                int undo = 0;
+                if (undo == 1)
+                {
+                    undoMove(move);
+                }
+                else
+                    break;
+            }
+        }
+        else
+        {
+            vector<Move> blueValidMoves;
+            collectBlueValidMoves(blueValidMoves);
+
+            int maxVal = -INF;
+            int value;
+            int alpha = -INF;
+            int beta = +INF;
+            Move bestMove;
+            for (int i = 0; i < blueValidMoves.size(); i++)
+            {
+                makeMove(blueValidMoves[i]);
+                int value = minimax(0, 3, alpha, beta, false); // "false" because after blue's making move its red's turn
+                undoMove(blueValidMoves[i]);
+                if (value > maxVal)
+                {
+                    maxVal = value;
+                    bestMove = blueValidMoves[i];
+                }
+
+                if (value > alpha)
+                {
+                    alpha = value;
+                }
+                if (beta <= alpha)
+                {
+                    break;
+                }
+            }
+            makeMove(bestMove);
+            printBoard();
+            printGraphics();
+        }
+    }
+
+    printBoard();
+    cout << "Gameover!!" << endl;
+    gameOverGraphics(winner);
 }
 
 void beginnerComputer()
@@ -1110,12 +1175,13 @@ void showSelectedCell(int row, int col)
         rectangle((row * SQUARE_SIZE) + i, (col * SQUARE_SIZE) + i,
                   ((row + 1) * SQUARE_SIZE) - i, ((col + 1) * SQUARE_SIZE) - i);
     }
+    setcolor(RED);
 }
 
 void undoSelection(int row, int col)
 {
     int thickness = 3;
-    if((row+col)%2)
+    if ((row + col) % 2)
     {
         setcolor(BROWN);
     }
@@ -1123,7 +1189,7 @@ void undoSelection(int row, int col)
     {
         setcolor(WHITE);
     }
-    
+
     rectangle(row * SQUARE_SIZE + thickness, col * SQUARE_SIZE + thickness,
               (row + 1) * SQUARE_SIZE - thickness, (col + 1) * SQUARE_SIZE - thickness);
 
@@ -1132,14 +1198,186 @@ void undoSelection(int row, int col)
         rectangle((row * SQUARE_SIZE) + i, (col * SQUARE_SIZE) + i,
                   ((row + 1) * SQUARE_SIZE) - i, ((col + 1) * SQUARE_SIZE) - i);
     }
+    //setcolor(RED);
 }
 
-// void processTheNode(int row, int col)
-// {
-//     showSelectedCell(row, col);
-//     if()
+void showMoves(int row, int col)
+{
+    vector<Move> validMoves;
+    Move move;
+    move.fromRow = row;
+    move.fromCol = col;
+    cout<<checkerBoard[row][col]<<endl;
+    if (checkerBoard[row][col] == RED_PIECE)
+    {
+        cout<<"Hello"<<endl;
+        move.toRow = row - 1;
+        move.toCol = col - 1;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
+        move.toCol = col + 1;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
 
-// }
+        move.toRow = row - 2;
+        move.toCol = col - 2;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
+        move.toCol = col + 2;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
+    }
+    if (checkerBoard[row][col] == RED_KING)
+    {
+        move.toRow = row + 1;
+        move.toCol = col - 1;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
+        move.toCol = col + 1;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
+        move.toRow = row - 1;
+        move.toCol = col - 1;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
+        move.toCol = col + 1;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
+
+        move.toRow = row + 2;
+        move.toCol = col - 2;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
+        move.toCol = col + 2;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
+        move.toRow = row - 2;
+        move.toCol = col - 2;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
+        move.toCol = col + 2;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
+    }
+
+    if (checkerBoard[row][col] == BLUE_PIECE)
+    {
+        move.toRow = row + 1;
+        move.toCol = col - 1;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
+        move.toCol = col + 1;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
+
+        move.toRow = row + 2;
+        move.toCol = col - 2;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
+        move.toCol = col + 2;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
+    }
+    if (checkerBoard[row][col] == BLUE_KING)
+    {
+        move.toRow = row + 1;
+        move.toCol = col - 1;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
+        move.toCol = col + 1;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
+        move.toRow = row - 1;
+        move.toCol = col - 1;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
+        move.toCol = col + 1;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
+
+        move.toRow = row + 2;
+        move.toCol = col - 2;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
+        move.toCol = col + 2;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
+        move.toRow = row - 2;
+        move.toCol = col - 2;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
+        move.toCol = col + 2;
+        if (isValidMove(move))
+        {
+            validMoves.push_back(move);
+        }
+    }
+
+    for (int i =0; i<validMoves.size(); i++)
+    {
+        cout<<"Moves: "<<validMoves[i].toRow<<"  "<<validMoves[i].toCol<<endl;
+        setcolor(BLACK);
+        setfillstyle(SOLID_FILL, BLACK);
+
+        circle(validMoves[i].toCol*SQUARE_SIZE + SQUARE_SIZE / 2, validMoves[i].toRow*SQUARE_SIZE + SQUARE_SIZE / 2, SQUARE_SIZE / 2 - 20);
+        floodfill(validMoves[i].toCol*SQUARE_SIZE + SQUARE_SIZE / 2, validMoves[i].toRow*SQUARE_SIZE + SQUARE_SIZE / 2, BLACK);
+
+    }
+}
+
+void removeShowedMoves(int row, int col){
+    setcolor(BROWN);
+    setfillstyle(SOLID_FILL, BROWN);
+
+    circle(col*SQUARE_SIZE + SQUARE_SIZE / 2, row*SQUARE_SIZE + SQUARE_SIZE / 2, SQUARE_SIZE / 2 - 20);
+    floodfill(col*SQUARE_SIZE + SQUARE_SIZE / 2, row*SQUARE_SIZE + SQUARE_SIZE / 2, BROWN);
+}
 
 Move getMove()
 {
@@ -1149,13 +1387,15 @@ Move getMove()
     move.fromRow = y / SQUARE_SIZE;
     move.fromCol = x / SQUARE_SIZE;
     showSelectedCell(move.fromCol, move.fromRow);
-    //processTheNode(move.fromCol, move.fromRow);
+
+    showMoves(move.fromRow, move.fromCol);
 
     getMouseClick(x, y);
     move.toRow = y / SQUARE_SIZE;
     move.toCol = x / SQUARE_SIZE;
     undoSelection(move.fromCol, move.fromRow);
 
+    //removeShowedMoves(move.toRow, move.toCol);
 
     return move;
 }
