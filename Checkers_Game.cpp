@@ -183,6 +183,20 @@ void graphicsAIMenu()
     outtextxy(200, 305, "3. Expert");
 }
 
+int evaluateState(int height)
+{
+    int redPieces, redKings, bluePieces, blueKings;
+    countPieces(redPieces, redKings, bluePieces, blueKings);
+    if (height % 2)
+    {
+        return ((bluePieces + 2 * blueKings) - (redPieces + 2 * redKings));
+    }
+    else
+    {
+        return ((redPieces + 2 * redKings) - (bluePieces + 2 * blueKings));
+    }
+}
+
 int minimax(int depth, int height, int alpha, int beta, bool isBlue)
 { // AI is blue. So blue is maxplayer.
 
@@ -190,8 +204,8 @@ int minimax(int depth, int height, int alpha, int beta, bool isBlue)
 
     if (depth == height)
     {
-        countPieces(redPieces, redKings, redPieces, redKings);
-        return ((bluePieces + 2 * blueKings) - (redPieces + 2 * redKings));
+        // countPieces(redPieces, redKings, redPieces, redKings);
+        return evaluateState(height); //((bluePieces + 2 * blueKings) - (redPieces + 2 * redKings));
     }
 
     if (isBlue)
@@ -444,7 +458,7 @@ void expertComputer()
             for (int i = 0; i < blueValidMoves.size(); i++)
             {
                 makeMove(blueValidMoves[i]);
-                int value = minimax(0, 8, alpha, beta, false); // "false" because after blue's making move its red's turn
+                int value = minimax(0, 9, alpha, beta, false); // "false" because after blue's making move its red's turn
                 undoMove(blueValidMoves[i]);
                 if (value > maxVal)
                 {
@@ -1006,7 +1020,7 @@ void gameOverGraphics(char winner)
     settextstyle(BOLD_FONT, HORIZ_DIR, 7);
     outtextxy(xYouWin, yYouWin, youWin);
 
-    delay(15000);
+    delay(200000);
     closegraph();
 }
 
