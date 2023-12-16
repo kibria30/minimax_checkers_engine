@@ -40,6 +40,9 @@ void printBoard();
 void graphicsMainMenu();
 void graphicsAIMenu();
 void scoreBoardGraphics();
+void showSelectedCell(int row, int col);
+void undoSelection(int row, int col);
+void processTheNode(int row, int col);
 Move getMove();
 void getMouseClick(int &x, int &y);
 bool isValidMove(Move move);
@@ -817,6 +820,7 @@ void playVsHuman()
             Move move;
             do
             {
+                cleardevice();
                 move = getMove();
             } while (!isValidMove(move));
             makeMove(move);
@@ -1094,6 +1098,49 @@ bool isValidMove(Move move)
     return false;
 }
 
+void showSelectedCell(int row, int col)
+{
+    int thickness = 3;
+    setcolor(BLACK);
+    rectangle(row * SQUARE_SIZE + thickness, col * SQUARE_SIZE + thickness,
+              (row + 1) * SQUARE_SIZE - thickness, (col + 1) * SQUARE_SIZE - thickness);
+
+    for (int i = 1; i <= thickness; ++i)
+    {
+        rectangle((row * SQUARE_SIZE) + i, (col * SQUARE_SIZE) + i,
+                  ((row + 1) * SQUARE_SIZE) - i, ((col + 1) * SQUARE_SIZE) - i);
+    }
+}
+
+void undoSelection(int row, int col)
+{
+    int thickness = 3;
+    if((row+col)%2)
+    {
+        setcolor(BROWN);
+    }
+    else
+    {
+        setcolor(WHITE);
+    }
+    
+    rectangle(row * SQUARE_SIZE + thickness, col * SQUARE_SIZE + thickness,
+              (row + 1) * SQUARE_SIZE - thickness, (col + 1) * SQUARE_SIZE - thickness);
+
+    for (int i = 1; i <= thickness; ++i)
+    {
+        rectangle((row * SQUARE_SIZE) + i, (col * SQUARE_SIZE) + i,
+                  ((row + 1) * SQUARE_SIZE) - i, ((col + 1) * SQUARE_SIZE) - i);
+    }
+}
+
+// void processTheNode(int row, int col)
+// {
+//     showSelectedCell(row, col);
+//     if()
+
+// }
+
 Move getMove()
 {
     Move move;
@@ -1101,9 +1148,14 @@ Move getMove()
     getMouseClick(x, y);
     move.fromRow = y / SQUARE_SIZE;
     move.fromCol = x / SQUARE_SIZE;
+    showSelectedCell(move.fromCol, move.fromRow);
+    //processTheNode(move.fromCol, move.fromRow);
+
     getMouseClick(x, y);
     move.toRow = y / SQUARE_SIZE;
     move.toCol = x / SQUARE_SIZE;
+    undoSelection(move.fromCol, move.fromRow);
+
 
     return move;
 }
