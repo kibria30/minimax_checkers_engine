@@ -176,8 +176,8 @@ void graphicsAIMenu()
     cleardevice();
     settextstyle(DEFAULT_FONT, HORIZ_DIR, 2);
 
-    outtextxy(35, 50, "Back");
-    rectangle(25, 40, 100, 80);
+    outtextxy(35, 50, "AI Level");
+    rectangle(25, 40, 150, 80);
 
     rectangle(180, 150, 450, 200);
     rectangle(180, 220, 450, 270);
