@@ -159,7 +159,7 @@ void scoreBoardGraphics()
 
 void graphicsMainMenu()
 {
-    cleardevice();
+    cleardevice(); 
     settextstyle(DEFAULT_FONT, HORIZ_DIR, 2);
 
     outtextxy(50, 50, "Menu:");
